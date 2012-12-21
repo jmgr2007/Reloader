@@ -103,7 +103,9 @@ public class Reloader extends JavaPlugin {
 			
 			@Override
 			public int getValue() {
-				return stats[0];
+				int temp = stats[0];
+				stats[0] = 0;
+				return temp;
 			}
 		});
 		
@@ -111,7 +113,9 @@ public class Reloader extends JavaPlugin {
 			
 			@Override
 			public int getValue() {
-				return stats[1];
+				int temp = stats[1];
+				stats[1] = 0;
+				return temp;
 			}
 		});
 		
@@ -121,7 +125,9 @@ public class Reloader extends JavaPlugin {
 			
 			@Override
 			public int getValue() {
-				return stats[2];
+				int temp = stats[2];
+				stats[2] = 0;
+				return temp;
 			}
 		});
 		
@@ -129,7 +135,9 @@ public class Reloader extends JavaPlugin {
 			
 			@Override
 			public int getValue() {
-				return stats[3];
+				int temp = stats[3];
+				stats[3] = 0;
+				return temp;
 			}
 		});
 		
@@ -139,16 +147,13 @@ public class Reloader extends JavaPlugin {
 			
 			@Override
 			public int getValue() {
-				return stats[4];
+				int temp = stats[4];
+				stats[4] = 0;
+				return temp;
 			}
 		});
 		
 		metrics.start();
-		stats[0] = 0;
-		stats[1] = 0;
-		stats[2] = 0;
-		stats[3] = 0;
-		stats[4] = 0;
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd,
