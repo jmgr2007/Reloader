@@ -1,0 +1,17 @@
+name: Reloader
+description: Reload or disable plugins at will
+version: 3.0.0
+
+author: jmgr2007
+website: 'http://jmgr2007.co.cc/?p=p&c=b&n=1'
+
+main: 'bukkit.jmgr2007.Reloader.Reloader'
+
+commands:
+  reloader:
+    description: index command for Reloader
+    usage: '/reloader for help'
+
+permissions:
+  reloader.reload:
+    description: Permission to reload plugins

@@ -1,0 +1,10 @@
+# time between automatic reloads
+timer:
+  autoreload: false
+  hours: 24
+  minutes: 0
+  seconds: 0
+# Plugins exempt from unload/disable/reload
+# (works like permission.yml files!)
+exempt:
+  - 'WorldGuard'
