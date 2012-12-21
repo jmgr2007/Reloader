@@ -159,14 +159,6 @@ public class Reloader extends JavaPlugin {
 			if (cmd.getName().equalsIgnoreCase("reloader")) {
 				if (args.length == 0) {
 					if (sender instanceof Player) {
-<<<<<<< HEAD
-						sender.sendMessage("Â§6----------- Â§cReloader help Â§6-----------");
-						sender.sendMessage("Â§/reloader reload <Plugin|all|*> Â§6-- Â§cReload <Plugin>");
-						sender.sendMessage("Â§4/reloader disable <Plugin|all|*> Â§6-- Â§cDisable <Plugin>");
-						sender.sendMessage("Â§4/reloader enable <Plugin|all|*> Â§6-- Â§cEnable <Plugin>");
-						sender.sendMessage("Â§4/reloader load <File> Â§6-- Â§cLoad <File>");
-						sender.sendMessage("Â§4/reloader unload <File> Â§6-- Â§cUn-Load <File>");
-=======
 						sender.sendMessage("§6----------- §cReloader help §6-----------");
 						sender.sendMessage("§4/reloader reload <Plugin|all|*> §6-- §cReload <Plugin>");
 						sender.sendMessage("§4/reloader disable <Plugin|all|*> §6-- §cDisable <Plugin>");
@@ -178,7 +170,6 @@ public class Reloader extends JavaPlugin {
 						sender.sendMessage("§4/reloader use <Plugin> §6-- §cGives info on how to use <Plugin>");
 						sender.sendMessage("§4/reloader perm [Player] <Permission> §6-- §cTells you if you or [Player] has <Permission>");
 						sender.sendMessage("§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled");
->>>>>>> Large update v 3.0.0
 					} else {
 						log.info("----------- Reloader help -----------");
 						log.info("reloader reload <plugin|all|*> -- Reload <Plugin>");
@@ -196,10 +187,6 @@ public class Reloader extends JavaPlugin {
 					if (args[1].equalsIgnoreCase("all")
 							|| args[1].equalsIgnoreCase("*")) {
 						this.getServer().broadcastMessage(
-<<<<<<< HEAD
-								"ï¿½2[Reloader] ï¿½4Reloading ALL plugins");
-						this.getServer().reload();
-=======
 								"§2[Reloader] §4Reloading ALL plugins");
 						Plugin[] plugins = pm.getPlugins();
 						addStats("reload", plugins.length);
@@ -220,7 +207,6 @@ public class Reloader extends JavaPlugin {
 								load(plugins[i].getName());
 							}
 						}
->>>>>>> Large update v 3.0.0
 					} else {
 						addStats("reload", 1);
 						for(String ex : this.getConfig().getStringList("exempt")) {
@@ -351,12 +337,6 @@ public class Reloader extends JavaPlugin {
 					} catch (IllegalAccessException e) {
 						e.printStackTrace();
 					}
-<<<<<<< HEAD
-				} else if (args[0].equalsIgnoreCase("check")) {
-				} else if (args[0].equalsIgnoreCase("info")) {
-				} else if (args[0].equalsIgnoreCase("use")) {
-				} else if (args[0].equalsIgnoreCase("perm")) {
-=======
 					sender.sendMessage("§2Plugin unloaded and disabled");
 				} else if (args[0].equalsIgnoreCase("check")) {
 				Plugin plugin = null;
@@ -372,7 +352,6 @@ public class Reloader extends JavaPlugin {
 					} else {
 						sender.sendMessage("§c" + plugin.getName() + " Is disabled");
 					}
->>>>>>> Large update v 3.0.0
 				} else {
 					sender.sendMessage("This is not a plugin loaded on this server");
 				}
@@ -706,10 +685,6 @@ public class Reloader extends JavaPlugin {
 						}
 					}
 				}
-<<<<<<< HEAD
-				sender.sendMessage("ï¿½2Plugin unloaded and disabled");
-=======
->>>>>>> Large update v 3.0.0
 			}
 		}
 	}
