@@ -8,3 +8,4 @@ timer:
 # (works like permission.yml files!)
 exempt:
   - 'WorldGuard'
+  - 'Reloader'
