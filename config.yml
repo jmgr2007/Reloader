@@ -1,3 +1,6 @@
+# replaces default /plugin command with what is displayer in /reloader list
+# warning: not set to use perms
+pl: true
 # time between automatic reloads
 timer:
   autoreload: false

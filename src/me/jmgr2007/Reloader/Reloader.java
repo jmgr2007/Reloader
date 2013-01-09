@@ -12,13 +12,17 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-
 public class Reloader extends JavaPlugin {
     private CommandExecutor CE = new ReloaderListener(this);
     private final Pl pl = new Pl(); 
     
     public void onEnable() {
         Logger log = this.getServer().getLogger();
+        log.info("[Reloader] Passing Reloader command to command handler");
+        this.getCommand("reloader").setExecutor(CE);
+        log.info("[Reloader] Passing Plugin command to command listener");
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvents(pl, this);
         initialConfigCheck();
         try {
             startMetrics();
@@ -39,12 +43,8 @@ public class Reloader extends JavaPlugin {
                         }
                     }
                 }
-                
             }, (((this.getConfig().getLong("timer.hours")*60*60) + (this.getConfig().getLong("timer.minutes")*60) + this.getConfig().getLong("timer.seconds")) * 20), (((this.getConfig().getLong("timer.hours")*60*60) + (this.getConfig().getLong("timer.minutes")*60) + this.getConfig().getLong("timer.seconds")) * 20));
         }
-        this.getCommand("reloader").setExecutor(CE);
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(pl, this);
     }
 
     public void onDisable() {

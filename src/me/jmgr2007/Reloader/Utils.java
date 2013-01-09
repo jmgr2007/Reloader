@@ -80,6 +80,51 @@ public class Utils {
     public static boolean load(final String pluginName, CommandSender sender) {
         PluginManager pm = Bukkit.getServer().getPluginManager();
         String name = "";
+        String path = ReloaderListener.plugin.getDataFolder().getParent();
+        File folder = new File(path);
+        ArrayList<File> files = new ArrayList<File>();
+        File[] listOfFiles = folder.listFiles();
+        for (File compare : listOfFiles) {
+            if (compare.isFile()) {
+            	try {
+					name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
+				} catch (InvalidDescriptionException e) {
+				}
+            		if(name.toLowerCase().startsWith(pluginName)) {
+            			files.add(compare);
+            			try {
+							Bukkit.getServer().getPluginManager().loadPlugin(compare);
+						} catch (UnknownDependencyException e) {
+							// TODO Auto-generated catch block
+						} catch (InvalidPluginException e) {
+							// TODO Auto-generated catch block
+						} catch (InvalidDescriptionException e) {
+							// TODO Auto-generated catch block
+						}
+            		}
+            }
+        }
+        
+        Plugin[] plugins = pm.getPlugins();
+        for(Plugin pl : plugins) {
+        	for(File compare : files) {
+        		try {
+					if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
+					    pm.enablePlugin(pl);
+					    Vars.addStats("enable", 1);
+					}
+				} catch (InvalidDescriptionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        	}
+        }
+        return true;
+    }
+    
+    public static boolean fload(final String pluginName, CommandSender sender) {
+        PluginManager pm = Bukkit.getServer().getPluginManager();
+        String name = "";
         String pname = "";
         if (pluginName.toLowerCase().endsWith(".jar")) {
             name = pluginName.replaceAll(".jar", "");
@@ -119,10 +164,10 @@ public class Utils {
     }
 
     @SuppressWarnings("unchecked")
-    public static boolean unload(final String pluginName) {
+    public static void unload(final String pluginName) {
     	
     	if(canceled)
-    		return canceled;
+    		return;
     	
         PluginManager manager = Bukkit.getServer().getPluginManager();
         SimplePluginManager spm = (SimplePluginManager) manager;
@@ -173,7 +218,7 @@ public class Utils {
 		}
 
         for (Plugin pl : Bukkit.getServer().getPluginManager().getPlugins()) {
-            if (pl.getDescription().getName().equalsIgnoreCase(pluginName)) {
+            if (pl.getName().equalsIgnoreCase(pluginName)) {
                 manager.disablePlugin(pl);
                 if (plugins != null && plugins.contains(pl)) {
                     plugins.remove(pl);
@@ -211,9 +256,20 @@ public class Utils {
                         }
                     }
                 }
-            }
+	        }
+	        for (Plugin plu : Bukkit.getServer().getPluginManager().getPlugins()) {
+	        	if(plu.getDescription().getDepend() != null) {
+		        	for (String depend : plu.getDescription().getDepend()) {
+		        		if(depend.equalsIgnoreCase(pl.getName())) {
+		        			System.out.println(depend);
+		        			System.out.println(plu.getName());
+		        			Utils.unload(plu.getName());
+		        		}
+		        	}
+	        	}
+	    	}
         }
-        return true;
+        return;
     }
 
     public static boolean disable(String plugin, CommandSender sender) {
@@ -245,7 +301,7 @@ public class Utils {
         Plugin plug = null;
         Plugin [] plugins = pm.getPlugins();
         for(Plugin pl : plugins) {
-            if(pl.getName().toLowerCase().startsWith(plugin)) {
+            if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 plug = pl;
             }
         }
@@ -306,7 +362,7 @@ public class Utils {
         Plugin plug = null;
         Plugin [] plugins = pm.getPlugins();
         for(Plugin pl : plugins) {
-            if(pl.getName().toLowerCase().startsWith(plugin)) {
+            if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 plug = pl;
             }
         }
@@ -337,7 +393,7 @@ public class Utils {
                     }
                 }
             if(plug.getDescription().getSoftDepend() != null) {
-                sender.sendMessage("§cRequired plugins");
+                sender.sendMessage("§cPreffered plugins");
                     List<String> depends = plug.getDescription().getSoftDepend();
                     for(int i = 0; i < depends.size(); i++) {
                             sender.sendMessage("§c* §a" + depends.get(i));
@@ -401,6 +457,8 @@ public class Utils {
         }
         Collections.sort(enabled,  String.CASE_INSENSITIVE_ORDER);
         Collections.sort(disabled,  String.CASE_INSENSITIVE_ORDER);
+        if(plugins.length != 0)
+        	sender.sendMessage("§a" + plugins.length + " plugins loaded");
         if(!enabled.isEmpty()) {
             sender.sendMessage("§6Enabled:");
             String enable = "";
@@ -462,5 +520,14 @@ public class Utils {
     			return true;
         }
     	return false;
+    }
+    
+    public static String join(String [] list) {
+    	String l = "";
+    	for(String pl : list) {
+    		l = l + pl + " ";
+    	}
+    	l = l.trim();
+		return null;
     }
 }

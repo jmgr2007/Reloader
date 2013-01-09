@@ -8,10 +8,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
 public class ReloaderListener implements CommandExecutor {
-	public Plugin plugin;
+	public static Reloader plugin;
 	private Plugin [] plugins = Bukkit.getServer().getPluginManager().getPlugins();
-	public ReloaderListener(Plugin plugin) {
-		this.plugin = plugin;
+	public ReloaderListener(Reloader instance) {
+		ReloaderListener.plugin = instance;
 	}
     private static void util(String name, CommandSender sender) { new Utils(name, sender);}
     private static void utilz(String name) { new Utils(name);}
@@ -20,24 +20,23 @@ public class ReloaderListener implements CommandExecutor {
             if (cmd.getName().equalsIgnoreCase("reloader")) {
                 if (args.length == 0) {
                 	return Utils.help(sender);
-                    }
                 } else if (args[0].equalsIgnoreCase("reload")) {
-                    if (args[1].equalsIgnoreCase("all")
-                            || args[1].equalsIgnoreCase("*")) {
+                    if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
+                    	plugins = Bukkit.getServer().getPluginManager().getPlugins();
                         plugin.getServer().broadcastMessage("§2[Reloader] §4Reloading ALL plugins");
                         Vars.addStats("reload", plugins.length);
-                        for(int i = 0; i < plugins.length; i++) {
+                        for(Plugin pl : plugins) {
                             boolean allow = true;
                             for(String ex : plugin.getConfig().getStringList("exempt")) {
                                 String p = ex;
-                                if(plugins[i].getName() == p) {
+                                if(pl.getName() == p) {
                                     allow = false;
                                 }
                             }
-                            if(!plugins[i].getName().toLowerCase().startsWith("Reloader") && allow) {
-                                utilz(plugins[i].getName());
-                                Utils.unload(plugins[i].getName());
-                                return Utils.load(plugins[i].getName());
+                            if(!pl.getName().toLowerCase().startsWith(plugin.getName().toLowerCase()) && allow) {
+                                utilz(pl.getName());
+                                Utils.unload(pl.getName());
+                                Utils.load(pl.getName());
                             }
                         }
                     } else {
@@ -54,8 +53,7 @@ public class ReloaderListener implements CommandExecutor {
                     }
                 } else if (args[0].equalsIgnoreCase("disable")) {
                     if (args.length == 2) {
-                        if (args[1].equalsIgnoreCase("all")
-                                || args[1].equalsIgnoreCase("*")) {
+                        if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
                             sender.sendMessage(ChatColor.RED + "Disabling ALL plugins(except for Reloader)");
                             for(Plugin pl : plugins) {
                             	utilz(pl.getName());
@@ -93,21 +91,23 @@ public class ReloaderListener implements CommandExecutor {
                 	Utils.unload(args[1]);
                     sender.sendMessage("§2Plugin unloaded and disabled");
                 } else if (args[0].equalsIgnoreCase("check")) {
-            } else if (args[0].equalsIgnoreCase("info")) {
-            	return Utils.info(args[1], sender);
-            } else if (args[0].equalsIgnoreCase("use")) {
-            	return Utils.use(args[1], sender);
-            } else if (args[0].equalsIgnoreCase("perm")) {
-                if(args.length == 3) {
-                	return Utils.perm(args[1], sender, args[2]);
-                } else if(args.length == 2) {
-                	return Utils.perm(sender, args[1]);
-                }
-            } else if (args[0].equalsIgnoreCase("list")) {
-            	return Utils.list(sender);
-            } else {
-                    sender.sendMessage(ChatColor.RED + "Invalid Args");
-                    return true;
+                	return Utils.check(args[1], sender);
+                } else if (args[0].equalsIgnoreCase("info")) {
+                	return Utils.info(args[1], sender);
+	            } else if (args[0].equalsIgnoreCase("use")) {
+	            	return Utils.use(args[1], sender);
+	            } else if (args[0].equalsIgnoreCase("perm")) {
+	                if(args.length == 3) {
+	                	return Utils.perm(args[1], sender, args[2]);
+	                } else if(args.length == 2) {
+	                	return Utils.perm(sender, args[1]);
+	                }
+	            } else if (args[0].equalsIgnoreCase("list")) {
+	            	return Utils.list(sender);
+	            } else {
+	                    sender.sendMessage(ChatColor.RED + "Invalid Args");
+	                    return true;
+	            }
             }
         } else {
             sender.sendMessage(ChatColor.RED + "Invalid permissions");
