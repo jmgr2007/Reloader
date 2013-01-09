@@ -16,6 +16,7 @@ public class ReloaderListener implements CommandExecutor {
     private static void util(String name, CommandSender sender) { new Utils(name, sender);}
     private static void utilz(String name) { new Utils(name);}
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+    	plugins = Bukkit.getServer().getPluginManager().getPlugins();
         if (sender.hasPermission("reloader.reload")) {
             if (cmd.getName().equalsIgnoreCase("reloader")) {
                 if (args.length == 0) {
@@ -39,6 +40,8 @@ public class ReloaderListener implements CommandExecutor {
                                 Utils.load(pl.getName());
                             }
                         }
+                    } else if(args[1].equalsIgnoreCase("harsh")) {
+                    	Utils.hReload();
                     } else {
                         Vars.addStats("reload", 1);
                         Plugin[] plugins = plugin.getServer().getPluginManager().getPlugins();
@@ -54,10 +57,11 @@ public class ReloaderListener implements CommandExecutor {
                 } else if (args[0].equalsIgnoreCase("disable")) {
                     if (args.length == 2) {
                         if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
-                            sender.sendMessage(ChatColor.RED + "Disabling ALL plugins(except for Reloader)");
+                            sender.sendMessage(ChatColor.RED + "Disabling all non-exempt plugins");
                             for(Plugin pl : plugins) {
                             	utilz(pl.getName());
-                            	Utils.disable(pl.getName(), sender);
+                            	if(!pl.getName().toLowerCase().startsWith("reloader".toLowerCase()))
+                            		Utils.disable(pl.getName(), sender);
                             }
                         } else {
                         	util(args[1], sender);
