@@ -59,7 +59,7 @@ public class Utils {
                         pm.loadPlugin(listOfFiles[num]);
                         pname = listOfFiles[num].getName();
                         pname = pname.replaceAll(".jar", "");
-                        Vars.addStats("load", 1);
+                        Vars.loaded.increment();
                     } catch (UnknownDependencyException
                             | InvalidPluginException
                             | InvalidDescriptionException e) {
@@ -71,7 +71,7 @@ public class Utils {
         for(int i = 0; i < plugins.length; i++) {
             if(plugins[i].getName().equalsIgnoreCase(pname)) {
                 pm.enablePlugin(plugins[i]);
-                Vars.addStats("enable", 1);
+                Vars.enabled.increment();
             }
         }
         return true;
@@ -95,11 +95,8 @@ public class Utils {
             			try {
 							Bukkit.getServer().getPluginManager().loadPlugin(compare);
 						} catch (UnknownDependencyException e) {
-							// TODO Auto-generated catch block
 						} catch (InvalidPluginException e) {
-							// TODO Auto-generated catch block
 						} catch (InvalidDescriptionException e) {
-							// TODO Auto-generated catch block
 						}
             		}
             }
@@ -111,10 +108,9 @@ public class Utils {
         		try {
 					if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
 					    pm.enablePlugin(pl);
-					    Vars.addStats("enable", 1);
+					    Vars.enabled.increment();
 					}
 				} catch (InvalidDescriptionException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
         	}
@@ -144,7 +140,7 @@ public class Utils {
                         pm.loadPlugin(listOfFiles[num]);
                         pname = listOfFiles[num].getName();
                         pname = pname.replaceAll(".jar", "");
-                        Vars.addStats("load", 1);
+                        Vars.loaded.increment();
                     } catch (UnknownDependencyException
                             | InvalidPluginException
                             | InvalidDescriptionException e) {
@@ -157,7 +153,7 @@ public class Utils {
         for(int i = 0; i < plugins.length; i++) {
             if(plugins[i].getName().equalsIgnoreCase(pname)) {
                 pm.enablePlugin(plugins[i]);
-                Vars.addStats("enable", 1);
+                Vars.enabled.increment();
             }
         }
         return true;
@@ -209,7 +205,6 @@ public class Utils {
 	                    .get(commandMap);
 	        }
     	} catch (IllegalArgumentException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchFieldException e) {
 			e.printStackTrace();
@@ -222,8 +217,8 @@ public class Utils {
                 manager.disablePlugin(pl);
                 if (plugins != null && plugins.contains(pl)) {
                     plugins.remove(pl);
-                    Vars.addStats("unload", 1);
-                    Vars.addStats("disable", 1);
+                    Vars.unloaded.increment();
+                    Vars.disabled.increment();
                 }
 
                 if (lookupNames != null && lookupNames.containsKey(pl.getName())) {
@@ -266,6 +261,7 @@ public class Utils {
 			        }
 			    }
 		    }
+            System.gc();
 	    }
         return;
     }
@@ -277,8 +273,7 @@ public class Utils {
     	for(Plugin pl : plugins) {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 pm.disablePlugin(pl);
-                Vars.addStats("disable", 1);
-                sender.sendMessage(ChatColor.GREEN + "Plugin disabled");
+                Vars.disabled.increment();
             }
         }
         return;
@@ -304,8 +299,7 @@ public class Utils {
         for(Plugin pl : plugins) {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 pm.enablePlugin(pl);
-                sender.sendMessage(ChatColor.GREEN + "Plugin enabled");
-                Vars.addStats("enable", 1);
+                Vars.enabled.increment();
             }
         }
         return true;
@@ -503,7 +497,7 @@ public class Utils {
         Logger log = Bukkit.getServer().getLogger();
         if (sender instanceof Player) {
             sender.sendMessage("§6----------- §cReloader help §6-----------");
-            sender.sendMessage("§4/reloader reload <Plugin|all|*|harsh> §6-- §cReload <Plugin>/reload all plugins in the server/relaod plugins and load new one");
+            sender.sendMessage("§4/reloader reload <Plugin|all|*|harsh> §6-- §cReload <Plugin>/reload all plugins in the server/reload plugins and load new one");
             sender.sendMessage("§4/reloader disable <Plugin|all|*> §6-- §cDisable <Plugin>");
             sender.sendMessage("§4/reloader enable <Plugin|all|*> §6-- §cEnable <Plugin>");
             sender.sendMessage("§4/reloader load <File> §6-- §cLoad <File>");
@@ -515,7 +509,7 @@ public class Utils {
             sender.sendMessage("§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled");
         } else {
             log.info("----------- Reloader help -----------");
-            log.info("reloader reload <plugin|all|*|harsh> -- Reload <Plugin>/reload all plugins in the server/relaod plugins and load new ones");
+            log.info("reloader reload <plugin|all|*|harsh> -- Reload <Plugin>/reload all plugins in the server/reload plugins and load new ones");
             log.info("reloader disable <Plugin|all|*> -- Disable <Plugin>");
             log.info("reloader enable <Plugin|all|*> -- Enable <Plugin>");
             log.info("reloader load <File> -- Load <File>");
@@ -527,6 +521,19 @@ public class Utils {
             log.info("reloader list -- List plugins in alphabetical order and sorts them by enabled or disabled");
         }
         return true;
+    }
+    
+    public static void configh(CommandSender sender) {
+        Logger log = Bukkit.getServer().getLogger();
+        if (sender instanceof Player) {
+            sender.sendMessage("§6----------- §cConfig help §6-----------");
+            sender.sendMessage("§4/reloader config reload [plugin] §6-- §cReload <plugin>'s config or reload reloaders config by default");
+        } else {
+            log.info("----------- Config help -----------");
+            log.info("reloader config reload <plugin> -- Reload <plugin>'s config or reload reloaders config by default");
+        }
+        return;
+    	
     }
     
     public static boolean exempt(String name) {

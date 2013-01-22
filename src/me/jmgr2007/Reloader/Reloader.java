@@ -68,12 +68,12 @@ public class Reloader extends JavaPlugin {
             
             @Override
             public int getValue() {
-                return Vars.loaded;
+                return Vars.loaded.getValue();
             }
             
             @Override
             public void reset() {
-            	Vars.loaded = 0;
+            	Vars.loaded.reset();
             }
         });
         
@@ -81,12 +81,12 @@ public class Reloader extends JavaPlugin {
             
             @Override
             public int getValue() {
-                return Vars.unloaded;
+                return Vars.unloaded.getValue();
             }
             
             @Override
             public void reset() {
-            	Vars.unloaded = 0;
+            	Vars.unloaded.reset();
                 
             }
         });
@@ -97,12 +97,12 @@ public class Reloader extends JavaPlugin {
             
             @Override
             public int getValue() {
-                return Vars.enabled;
+                return Vars.enabled.getValue();
             }
             
             @Override
             public void reset() {
-            	Vars.enabled = 0;
+            	Vars.enabled.reset();
             }
         });
         
@@ -110,12 +110,12 @@ public class Reloader extends JavaPlugin {
             
             @Override
             public int getValue() {
-                return Vars.disabled;
+                return Vars.disabled.getValue();
             }
             
             @Override
             public void reset() {
-            	Vars.disabled = 0;
+            	Vars.disabled.reset();
             }
         });
         
@@ -125,12 +125,12 @@ public class Reloader extends JavaPlugin {
             
             @Override
             public int getValue() {
-                return Vars.reloaded;
+                return Vars.reloaded.getValue();
             }
 
             @Override
             public void reset() {
-            	Vars.reloaded = 0;
+            	Vars.reloaded.reset();
             }
         });
         

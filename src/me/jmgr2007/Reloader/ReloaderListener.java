@@ -21,11 +21,13 @@ public class ReloaderListener implements CommandExecutor {
             if (cmd.getName().equalsIgnoreCase("reloader")) {
                 if (args.length == 0) {
                 	return Utils.help(sender);
-                } else if (args[0].equalsIgnoreCase("reload")) {
+                } else if(args[0].equalsIgnoreCase("config")) {
+                	
+                }else if (args[0].equalsIgnoreCase("reload")) {
                     if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
                     	plugins = Bukkit.getServer().getPluginManager().getPlugins();
                         plugin.getServer().broadcastMessage("§2[Reloader] §4Reloading ALL plugins");
-                        Vars.addStats("reload", plugins.length);
+                        Vars.reloaded.add(plugins.length);
                         for(Plugin pl : plugins) {
                             boolean allow = true;
                             for(String ex : plugin.getConfig().getStringList("exempt")) {
@@ -43,7 +45,7 @@ public class ReloaderListener implements CommandExecutor {
                     } else if(args[1].equalsIgnoreCase("harsh")) {
                     	Utils.hReload();
                     } else {
-                        Vars.addStats("reload", 1);
+                        Vars.reloaded.increment();
                         Plugin[] plugins = plugin.getServer().getPluginManager().getPlugins();
                         for(int i = 0; i < plugins.length; i++) {
                             if(plugins[i].getName().equalsIgnoreCase(args[1])) {
@@ -66,6 +68,7 @@ public class ReloaderListener implements CommandExecutor {
                         } else {
                         	util(args[1], sender);
                         	Utils.disable(args[1], sender);
+                            sender.sendMessage(ChatColor.GREEN + "Plugin disabled");
                         }
                     }
                 } else if (args[0].equalsIgnoreCase("enable")) {
@@ -78,6 +81,7 @@ public class ReloaderListener implements CommandExecutor {
                             sender.sendMessage(ChatColor.GREEN + "Enabling all plugins");
                         } else {
                         	Utils.enable(args[1], sender);
+                            sender.sendMessage(ChatColor.GREEN + "Plugin enabled");
                         }
                     } else {
                         sender.sendMessage(ChatColor.RED + "Invalid Args");
