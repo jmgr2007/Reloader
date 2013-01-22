@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import me.jmgr2007.Reloader.Metrics.Plotter;
 import me.jmgr2007.Reloader.Metrics.Graph;
 
 import org.bukkit.Bukkit;
@@ -64,7 +65,7 @@ public class Reloader extends JavaPlugin {
         metrics = new Metrics(this);
         Graph load = metrics.createGraph("Plugins loaded/unloaded");
         
-        load.addPlotter(new Metrics.Plotter("Plugins Loaded") {
+        load.addPlotter(new Plotter("Plugins Loaded") {
             
             @Override
             public int getValue() {
