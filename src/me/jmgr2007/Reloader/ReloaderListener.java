@@ -6,6 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 
 public class ReloaderListener implements CommandExecutor {
 	public static Reloader plugin;
@@ -22,7 +23,16 @@ public class ReloaderListener implements CommandExecutor {
                 if (args.length == 0) {
                 	return Utils.help(sender);
                 } else if(args[0].equalsIgnoreCase("config")) {
-                	
+                	PluginManager pm = Bukkit.getServer().getPluginManager();
+                	if(args.length > 1) {
+                        for(Plugin pl : plugins) {
+                        	if(pl.getName().toLowerCase().startsWith(args[1].toLowerCase()))
+                        		pl.reloadConfig();
+                        }
+                	} else {
+                		pm.getPlugin("Reloader").reloadConfig();
+                	}
+                	sender.sendMessage("§aConfig reloaded");
                 }else if (args[0].equalsIgnoreCase("reload")) {
                     if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
                     	plugins = Bukkit.getServer().getPluginManager().getPlugins();
@@ -51,7 +61,7 @@ public class ReloaderListener implements CommandExecutor {
                             if(plugins[i].getName().equalsIgnoreCase(args[1])) {
                                 utilz(plugins[i].getName());
 								Utils.unload(plugins[i].getName());
-                                Utils.load(plugins[i].getName(), plugin.getServer().getPlayer(sender.getName()));
+                                Utils.load(plugins[i].getName());
                                 sender.sendMessage(ChatColor.GREEN + "Plugin reloaded");
                             }
                         }
@@ -93,7 +103,6 @@ public class ReloaderListener implements CommandExecutor {
                     } else {
                         sender.sendMessage(ChatColor.RED + "Invalid Args");
                     }
-                    sender.sendMessage(ChatColor.GREEN + "Plugin loaded and enabled");
                 } else if (args[0].equalsIgnoreCase("unload")) {
                     utilz(args[1]);
                 	Utils.unload(args[1]);
@@ -114,6 +123,7 @@ public class ReloaderListener implements CommandExecutor {
 	            	return Utils.list(sender);
 	            } else {
 	                    sender.sendMessage(ChatColor.RED + "Invalid Args");
+	                    sender.sendMessage("Disabled: " + Vars.disabled.getValue() + " Enabled: " + Vars.enabled.getValue() + " Loaded: " + Vars.loaded.getValue() + " UnLoaded: " + Vars.unloaded.getValue() + " ReLoaded: " + Vars.reloaded.getValue());
 	                    return true;
 	            }
             }

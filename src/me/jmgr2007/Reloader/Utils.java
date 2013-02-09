@@ -41,81 +41,118 @@ public class Utils {
 		canceled = exempt(name);
 	}
 
-    public static boolean load(final String pluginName) {
+    public static void load(final String pluginName) {
         PluginManager pm = Bukkit.getServer().getPluginManager();
-        String name = "";
-        String pname = "";
-        name = pluginName;
-        String path = "./plugins";
-        String files;
-        File folder = new File(path);
-        File[] listOfFiles = folder.listFiles();
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-                files = listOfFiles[i].getName();
-                int num = i;
-                if (files.toLowerCase().startsWith(name.toLowerCase())) {
-                    try {
-                        pm.loadPlugin(listOfFiles[num]);
-                        pname = listOfFiles[num].getName();
-                        pname = pname.replaceAll(".jar", "");
-                        Vars.loaded.increment();
-                    } catch (UnknownDependencyException
-                            | InvalidPluginException
-                            | InvalidDescriptionException e) {
-                    }
-                }
-            }
-        }
-        Plugin[] plugins = pm.getPlugins();
-        for(int i = 0; i < plugins.length; i++) {
-            if(plugins[i].getName().equalsIgnoreCase(pname)) {
-                pm.enablePlugin(plugins[i]);
-                Vars.enabled.increment();
-            }
-        }
-        return true;
-    }
-
-    public static boolean load(final String pluginName, CommandSender sender) {
-        PluginManager pm = Bukkit.getServer().getPluginManager();
-        String name = "";
-        String path = ReloaderListener.plugin.getDataFolder().getParent();
-        File folder = new File(path);
-        ArrayList<File> files = new ArrayList<File>();
-        File[] listOfFiles = folder.listFiles();
-        for (File compare : listOfFiles) {
-            if (compare.isFile()) {
-            	try {
-					name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
-				} catch (InvalidDescriptionException e) {
-				}
-            		if(name.toLowerCase().startsWith(pluginName)) {
-            			files.add(compare);
-            			try {
+        
+        boolean there = false;
+        
+        for(Plugin pl : pm.getPlugins())
+        	if(pl.getName().toLowerCase().startsWith(pluginName))
+        		there = true;
+        
+        if(there) {
+        	System.out.print("Plugin already enabled");
+        	return;
+        } else {
+	        String name = "";
+	        String path = pm.getPlugin("Reloader").getDataFolder().getParent();
+	        File folder = new File(path);
+	        ArrayList<File> files = new ArrayList<File>();
+	        File[] listOfFiles = folder.listFiles();
+	        for (File compare : listOfFiles) {
+	            if (compare.isFile()) {
+	            	try {
+						name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
+					} catch (InvalidDescriptionException e) {
+						System.out.print(compare.getName() + "didn't match");
+					}
+	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
+	            		files.add(compare);
+	            		try {
 							Bukkit.getServer().getPluginManager().loadPlugin(compare);
 						} catch (UnknownDependencyException e) {
+							System.out.print(compare.getName() + "is missing a dependant plugin");
 						} catch (InvalidPluginException e) {
+							System.out.print(compare.getName() + "is not a plugin");
 						} catch (InvalidDescriptionException e) {
+							System.out.print(compare.getName() + "has an incorrect description");
 						}
-            		}
-            }
-        }
-        
-        Plugin[] plugins = pm.getPlugins();
-        for(Plugin pl : plugins) {
-        	for(File compare : files) {
-        		try {
-					if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
-					    pm.enablePlugin(pl);
-					    Vars.enabled.increment();
+	            	}
+	            }
+	        }
+	        
+	        Plugin[] plugins = pm.getPlugins();
+	        for(Plugin pl : plugins) {
+	        	for(File compare : files) {
+	        		try {
+						if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
+						    pm.enablePlugin(pl);
+						    Vars.enabled.increment();
+						}
+					} catch (InvalidDescriptionException e) {
+						e.printStackTrace();
 					}
-				} catch (InvalidDescriptionException e) {
-					e.printStackTrace();
-				}
-        	}
+	        	}
+	        }
         }
-        return true;
+        return;
+    }
+
+    public static void load(final String pluginName, CommandSender sender) {
+        PluginManager pm = Bukkit.getServer().getPluginManager();
+        
+        boolean there = false;
+        
+        for(Plugin pl : pm.getPlugins())
+        	if(pl.getName().toLowerCase().startsWith(pluginName))
+        		there = true;
+        
+        if(there) {
+        	System.out.print("Plugin already enabled");
+        	return;
+        } else {
+	        String name = "";
+	        String path = ReloaderListener.plugin.getDataFolder().getParent();
+	        File folder = new File(path);
+	        ArrayList<File> files = new ArrayList<File>();
+	        File[] listOfFiles = folder.listFiles();
+	        for (File compare : listOfFiles) {
+	            if (compare.isFile()) {
+	            	try {
+						name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
+					} catch (InvalidDescriptionException e) {
+						System.out.print(compare.getName() + " has an incorect description");
+					}
+	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
+	            		files.add(compare);
+	            		try {
+							Bukkit.getServer().getPluginManager().loadPlugin(compare);
+						} catch (UnknownDependencyException e) {
+							System.out.print(compare.getName() + "is missing a dependant plugin");
+						} catch (InvalidPluginException e) {
+							System.out.print(compare.getName() + "is not a plugin");
+						} catch (InvalidDescriptionException e) {
+							System.out.print(compare.getName() + " has an incorrect description");
+						}
+	            	}
+	            }
+	        }
+	        
+	        Plugin[] plugins = pm.getPlugins();
+	        for(Plugin pl : plugins) {
+	        	for(File compare : files) {
+	        		try {
+						if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
+						    pm.enablePlugin(pl);
+						    Vars.enabled.increment();
+						}
+					} catch (InvalidDescriptionException e) {
+						e.printStackTrace();
+					}
+	        	}
+	        }
+        }
+        return;
     }
     
     public static boolean fload(final String pluginName, CommandSender sender) {
@@ -141,9 +178,11 @@ public class Utils {
                         pname = listOfFiles[num].getName();
                         pname = pname.replaceAll(".jar", "");
                         Vars.loaded.increment();
-                    } catch (UnknownDependencyException
-                            | InvalidPluginException
-                            | InvalidDescriptionException e) {
+                    } catch (UnknownDependencyException e) {
+                        sender.sendMessage(ChatColor.RED + "Not a plugin file OR has an underlying problem");
+                    } catch (InvalidPluginException e) {
+                        sender.sendMessage(ChatColor.RED + "Not a plugin file OR has an underlying problem");
+                    } catch (InvalidDescriptionException e) {
                         sender.sendMessage(ChatColor.RED + "Not a plugin file OR has an underlying problem");
                     }
                 }
@@ -204,13 +243,16 @@ public class Utils {
 	            knownCommands = (Map<String, Command>) knownCommandsField
 	                    .get(commandMap);
 	        }
-    	} catch (IllegalArgumentException | IllegalAccessException e) {
+    	} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (NoSuchFieldException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
 			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
 		}
+        boolean in = false;
 
         for (Plugin pl : Bukkit.getServer().getPluginManager().getPlugins()) {
             if (pl.getName().toLowerCase().contains(pluginName.toLowerCase())) {
@@ -260,9 +302,13 @@ public class Utils {
 				        }
 			        }
 			    }
+			    in = true;
 		    }
-            System.gc();
 	    }
+        if(!in) {
+        	Bukkit.getLogger().info("Not an existing plugin");
+        }
+        System.gc();
         return;
     }
 
@@ -507,6 +553,7 @@ public class Utils {
             sender.sendMessage("§4/reloader use <Plugin> §6-- §cGives info on how to use <Plugin>");
             sender.sendMessage("§4/reloader perm [Player] <Permission> §6-- §cTells you if you or [Player] has <Permission>");
             sender.sendMessage("§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled");
+            sender.sendMessage("§4/reloader config [plugin] §6-- §cReload [plugin]'s config or leave blank to reload Reloader's config");
         } else {
             log.info("----------- Reloader help -----------");
             log.info("reloader reload <plugin|all|*|harsh> -- Reload <Plugin>/reload all plugins in the server/reload plugins and load new ones");
@@ -519,21 +566,9 @@ public class Utils {
             log.info("reloader use <Plugin> -- Gives info on how to use <plugin>");
             log.info("reloader perm [Player] <Permission> -- Tells you if you or [Player] has <Permission>");
             log.info("reloader list -- List plugins in alphabetical order and sorts them by enabled or disabled");
+            log.info("/reloader config [plugin] -- Reload [plugin]'s config or leave blank to reload Reloader's config");
         }
         return true;
-    }
-    
-    public static void configh(CommandSender sender) {
-        Logger log = Bukkit.getServer().getLogger();
-        if (sender instanceof Player) {
-            sender.sendMessage("§6----------- §cConfig help §6-----------");
-            sender.sendMessage("§4/reloader config reload [plugin] §6-- §cReload <plugin>'s config or reload reloaders config by default");
-        } else {
-            log.info("----------- Config help -----------");
-            log.info("reloader config reload <plugin> -- Reload <plugin>'s config or reload reloaders config by default");
-        }
-        return;
-    	
     }
     
     public static boolean exempt(String name) {
@@ -544,12 +579,12 @@ public class Utils {
     	return false;
     }
     
-    public static String join(String [] list) {
-    	String l = "";
-    	for(String pl : list) {
-    		l = l + pl + " ";
+    public static String join(String [] args) {
+    	String l = args[1];
+    	for(int i = 2; i < args.length; i++) {
+    		l = l + " " + args[i];
     	}
     	l = l.trim();
-		return null;
+		return l;
     }
 }

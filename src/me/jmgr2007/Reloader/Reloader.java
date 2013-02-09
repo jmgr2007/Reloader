@@ -18,6 +18,11 @@ public class Reloader extends JavaPlugin {
     private final Pl pl = new Pl(); 
     
     public void onEnable() {
+    	Vars.disabled = new Val();
+    	Vars.enabled = new Val();
+    	Vars.loaded = new Val();
+    	Vars.reloaded = new Val();
+    	Vars.unloaded = new Val();
         Logger log = this.getServer().getLogger();
         log.info("[Reloader] Passing Reloader command to command handler");
         this.getCommand("reloader").setExecutor(CE);
