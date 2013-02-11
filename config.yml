@@ -1,6 +1,9 @@
 # replaces default /plugin command with what is displayer in /reloader list
-# warning: not set to use perms
+# use reloader.list permission to allow users to see this
 pl: true
+# If set to true the default /pl is inaccessible.
+# users with reloader.list perm can still see the /reloader list version
+default-pl: false
 # time between automatic reloads
 timer:
   autoreload: false
