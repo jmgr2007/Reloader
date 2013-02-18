@@ -1,6 +1,6 @@
 name: Reloader
 description: Reload or disable plugins at will
-version: 3.1.1
+version: 3.1.2
 
 author: jmgr2007
 
@@ -14,5 +14,5 @@ commands:
 permissions:
   reloader.reload:
     description: Permission to reload plugins
-  reloader.list
+  reloader.list:
     description: see reloader's plugins list

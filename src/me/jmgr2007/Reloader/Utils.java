@@ -117,7 +117,7 @@ public class Utils {
 	        ArrayList<File> files = new ArrayList<File>();
 	        File[] listOfFiles = folder.listFiles();
 	        for (File compare : listOfFiles) {
-	            if (compare.isFile()) {
+	            if (compare.isFile() && compare.getName().endsWith(".jar")) {
 	            	try {
 						name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
 					} catch (InvalidDescriptionException e) {
