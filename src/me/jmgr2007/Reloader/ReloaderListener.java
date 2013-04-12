@@ -26,14 +26,14 @@ public class ReloaderListener implements CommandExecutor {
                 	PluginManager pm = Bukkit.getServer().getPluginManager();
                 	if(args.length > 1) {
                         for(Plugin pl : plugins) {
-                        	if(pl.getName().toLowerCase().startsWith(args[1].toLowerCase()))
+                        	if(pl.getName().toLowerCase().startsWith(Utils.join(args)))
                         		pl.reloadConfig();
                         }
                 	} else {
                 		pm.getPlugin("Reloader").reloadConfig();
                 	}
                 	sender.sendMessage("§aConfig reloaded");
-                }else if (args[0].equalsIgnoreCase("reload")) {
+                } else if (args[0].equalsIgnoreCase("reload")) {
                     if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
                     	plugins = Bukkit.getServer().getPluginManager().getPlugins();
                         plugin.getServer().broadcastMessage("§2[Reloader] §4Reloading ALL plugins");
@@ -58,7 +58,7 @@ public class ReloaderListener implements CommandExecutor {
                         Vars.reloaded.increment();
                         Plugin[] plugins = plugin.getServer().getPluginManager().getPlugins();
                         for(int i = 0; i < plugins.length; i++) {
-                            if(plugins[i].getName().equalsIgnoreCase(args[1])) {
+                            if(plugins[i].getName().equalsIgnoreCase(Utils.join(args))) {
                                 utilz(plugins[i].getName());
 								Utils.unload(plugins[i].getName());
                                 Utils.load(plugins[i].getName());
@@ -67,7 +67,7 @@ public class ReloaderListener implements CommandExecutor {
                         }
                     }
                 } else if (args[0].equalsIgnoreCase("disable")) {
-                    if (args.length == 2) {
+                    if (args.length >= 2) {
                         if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
                             sender.sendMessage(ChatColor.RED + "Disabling all non-exempt plugins");
                             for(Plugin pl : plugins) {
@@ -76,43 +76,33 @@ public class ReloaderListener implements CommandExecutor {
                             		Utils.disable(pl.getName(), sender);
                             }
                         } else {
-                        	util(args[1], sender);
-                        	Utils.disable(args[1], sender);
-                            sender.sendMessage(ChatColor.GREEN + "Plugin disabled");
+                        	util(Utils.join(args), sender);
+                        	Utils.disable(Utils.join(args), sender);
                         }
                     }
                 } else if (args[0].equalsIgnoreCase("enable")) {
-                    if (args.length == 2) {
+                    if (args.length >= 2) {
                         if (args[1].equalsIgnoreCase("all")
                                 || args[1].equalsIgnoreCase("*")) {
                             for(Plugin pl : plugins) {
-                                Utils.enable(pl.getName(), sender);
+                                Utils.enable(pl.getName());
                             }
                             sender.sendMessage(ChatColor.GREEN + "Enabling all plugins");
                         } else {
-                        	Utils.enable(args[1], sender);
-                            sender.sendMessage(ChatColor.GREEN + "Plugin enabled");
+                        	Utils.enable(Utils.join(args), sender);
                         }
-                    } else {
-                        sender.sendMessage(ChatColor.RED + "Invalid Args");
                     }
                 } else if (args[0].equalsIgnoreCase("load")) {
-                    if (args.length == 2) {
-                        Utils.load(args[1],
-                                plugin.getServer().getPlayer(sender.getName()));
-                    } else {
-                        sender.sendMessage(ChatColor.RED + "Invalid Args");
-                    }
+                        Utils.load(Utils.join(args), sender);
                 } else if (args[0].equalsIgnoreCase("unload")) {
-                    utilz(args[1]);
-                	Utils.unload(args[1]);
-                    sender.sendMessage("§2Plugin unloaded and disabled");
+                    utilz(Utils.join(args));
+                	Utils.unload(Utils.join(args), sender);
                 } else if (args[0].equalsIgnoreCase("check")) {
-                	return Utils.check(args[1], sender);
+                	Utils.check(Utils.join(args), sender);
                 } else if (args[0].equalsIgnoreCase("info")) {
-                	return Utils.info(args[1], sender);
+                	Utils.info(Utils.join(args), sender);
 	            } else if (args[0].equalsIgnoreCase("use")) {
-	            	return Utils.use(args[1], sender);
+	            	Utils.use(Utils.join(args), sender);
 	            } else if (args[0].equalsIgnoreCase("perm")) {
 	                if(args.length == 3) {
 	                	return Utils.perm(args[1], sender, args[2]);

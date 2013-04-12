@@ -44,6 +44,7 @@ public class Utils {
     public static void load(final String pluginName) {
         PluginManager pm = Bukkit.getServer().getPluginManager();
         
+        
         boolean there = false;
         
         for(Plugin pl : pm.getPlugins())
@@ -72,10 +73,13 @@ public class Utils {
 							Bukkit.getServer().getPluginManager().loadPlugin(compare);
 						} catch (UnknownDependencyException e) {
 							System.out.print(compare.getName() + "is missing a dependant plugin");
+							return;
 						} catch (InvalidPluginException e) {
 							System.out.print(compare.getName() + "is not a plugin");
+							return;
 						} catch (InvalidDescriptionException e) {
 							System.out.print(compare.getName() + "has an incorrect description");
+							return;
 						}
 	            	}
 	            }
@@ -108,7 +112,7 @@ public class Utils {
         		there = true;
         
         if(there) {
-        	System.out.print("Plugin already enabled");
+        	sender.sendMessage("§c" + "Plugin already enabled");
         	return;
         } else {
 	        String name = "";
@@ -121,18 +125,21 @@ public class Utils {
 	            	try {
 						name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
 					} catch (InvalidDescriptionException e) {
-						System.out.print(compare.getName() + " has an incorect description");
+						System.out.print("§c" + compare.getName() + " has an incorect description");
 					}
 	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
 	            		files.add(compare);
 	            		try {
 							Bukkit.getServer().getPluginManager().loadPlugin(compare);
 						} catch (UnknownDependencyException e) {
-							System.out.print(compare.getName() + "is missing a dependant plugin");
+							sender.sendMessage("§c" + compare.getName() + "is missing a dependant plugin");
+							return;
 						} catch (InvalidPluginException e) {
-							System.out.print(compare.getName() + "is not a plugin");
+							sender.sendMessage("§c" + compare.getName() + "is not a plugin");
+							return;
 						} catch (InvalidDescriptionException e) {
-							System.out.print(compare.getName() + " has an incorrect description");
+							sender.sendMessage("§c" + compare.getName() + " has an incorrect description");
+							return;
 						}
 	            	}
 	            }
@@ -152,10 +159,11 @@ public class Utils {
 	        	}
 	        }
         }
+        sender.sendMessage("§aPlugin loaded and enabled");
         return;
     }
     
-    public static boolean fload(final String pluginName, CommandSender sender) {
+/*    public static boolean fload(final String pluginName, CommandSender sender) {
         PluginManager pm = Bukkit.getServer().getPluginManager();
         String name = "";
         String pname = "";
@@ -196,14 +204,15 @@ public class Utils {
             }
         }
         return true;
-    }
+    }*/
 
     @SuppressWarnings("unchecked")
-    public static void unload(final String pluginName) {
+    public static void unload(String pluginName) {
     	
     	if(canceled)
     		return;
     	
+    	pluginName = pluginName.toLowerCase().trim();
         PluginManager manager = Bukkit.getServer().getPluginManager();
         SimplePluginManager spm = (SimplePluginManager) manager;
         SimpleCommandMap commandMap = null;
@@ -255,7 +264,9 @@ public class Utils {
         boolean in = false;
 
         for (Plugin pl : Bukkit.getServer().getPluginManager().getPlugins()) {
-            if (pl.getName().toLowerCase().contains(pluginName.toLowerCase())) {
+        	if(in)
+        		break;
+            if (pl.getName().toLowerCase().startsWith(pluginName.toLowerCase())) {
                 manager.disablePlugin(pl);
                 if (plugins != null && plugins.contains(pl)) {
                     plugins.remove(pl);
@@ -312,7 +323,127 @@ public class Utils {
         return;
     }
 
-    public static void disable(String plugin, CommandSender sender) {
+    @SuppressWarnings("unchecked")
+    public static void unload(String pluginName, CommandSender sender) {
+    	
+    	if(canceled)
+    		return;
+    	
+    	pluginName = pluginName.toLowerCase().trim();
+        PluginManager manager = Bukkit.getServer().getPluginManager();
+        SimplePluginManager spm = (SimplePluginManager) manager;
+        SimpleCommandMap commandMap = null;
+        List<Plugin> plugins = null;
+        Map<String, Plugin> lookupNames = null;
+        Map<String, Command> knownCommands = null;
+        Map<Event, SortedSet<RegisteredListener>> listeners = null;
+        boolean reloadlisteners = true;
+        try {
+	        if (spm != null) {
+	            Field pluginsField = spm.getClass().getDeclaredField("plugins");
+	            pluginsField.setAccessible(true);
+	            plugins = (List<Plugin>) pluginsField.get(spm);
+	
+	            Field lookupNamesField = spm.getClass().getDeclaredField("lookupNames");
+	            lookupNamesField.setAccessible(true);
+	            lookupNames = (Map<String, Plugin>) lookupNamesField.get(spm);
+	
+	            try {
+	                Field listenersField = spm.getClass().getDeclaredField(
+	                        "listeners");
+	                listenersField.setAccessible(true);
+	                listeners = (Map<Event, SortedSet<RegisteredListener>>) listenersField
+	                        .get(spm);
+	            } catch (Exception e) {
+	                reloadlisteners = false;
+	            }
+	
+	            Field commandMapField = spm.getClass().getDeclaredField(
+	                    "commandMap");
+	            commandMapField.setAccessible(true);
+	            commandMap = (SimpleCommandMap) commandMapField.get(spm);
+	
+	            Field knownCommandsField = commandMap.getClass().getDeclaredField(
+	                    "knownCommands");
+	            knownCommandsField.setAccessible(true);
+	            knownCommands = (Map<String, Command>) knownCommandsField
+	                    .get(commandMap);
+	        }
+    	} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+        boolean in = false;
+
+        for (Plugin pl : Bukkit.getServer().getPluginManager().getPlugins()) {
+        	if(in)
+        		break;
+            if (pl.getName().toLowerCase().startsWith(pluginName.toLowerCase())) {
+                manager.disablePlugin(pl);
+                if (plugins != null && plugins.contains(pl)) {
+                    plugins.remove(pl);
+                    Vars.unloaded.increment();
+                    Vars.disabled.increment();
+                }
+
+                if (lookupNames != null && lookupNames.containsKey(pl.getName())) {
+                    lookupNames.remove(pl.getName());
+                }
+
+                if (listeners != null && reloadlisteners) {
+                    for (SortedSet<RegisteredListener> set : listeners.values()) {
+                        for (Iterator<RegisteredListener> it = set.iterator(); it
+                                .hasNext();) {
+                            RegisteredListener value = it.next();
+
+                            if (value.getPlugin() == pl) {
+                                it.remove();
+                            }
+                        }
+                    }
+                }
+
+                if (commandMap != null) {
+                    for (Iterator<Map.Entry<String, Command>> it = knownCommands
+                            .entrySet().iterator(); it.hasNext();) {
+                        Map.Entry<String, Command> entry = it.next();
+                        if (entry.getValue() instanceof PluginCommand) {
+                            PluginCommand c = (PluginCommand) entry.getValue();
+                            if (c.getPlugin() == pl) {
+                                c.unregister(commandMap);
+                                it.remove();
+                            }
+                        }
+                    }
+                }
+			    for (Plugin plu : Bukkit.getServer().getPluginManager().getPlugins()) {
+			        if(plu.getDescription().getDepend() != null) {
+				        for (String depend : plu.getDescription().getDepend()) {
+				        	if(depend.equalsIgnoreCase(pl.getName())) {
+				        		Utils.unload(plu.getName());
+				        	}
+				        }
+			        }
+			    }
+			    in = true;
+		    }
+	    }
+        if(!in) {
+        	sender.sendMessage("§cNot an existing plugin");
+        }
+        if(in) {
+            sender.sendMessage("§aPlugin unloaded and disabled");
+        }
+        System.gc();
+        return;
+    }
+
+    public static void disable(String plugin) {
     	if(canceled)
     		return;
     	Plugin [] plugins = pm.getPlugins();
@@ -325,22 +456,31 @@ public class Utils {
         return;
     }
 
-    public static void hReload() {
-    	for(Plugin pl : pm.getPlugins()) {
-    		Utils.unload(pl.getName());
-    		for(File fl : new File(pl.getDataFolder().getParent()).listFiles()) {
-    			try {
-					pm.loadPlugin(fl);
-				} catch (InvalidDescriptionException e) {
-				} catch (UnknownDependencyException e) {
-					e.printStackTrace();
-				} catch (InvalidPluginException e) {
-				}
-    		}
+    public static void disable(String plugin, CommandSender sender) {
+    	if(canceled)
+    		return;
+    	boolean h = false;
+    	Plugin [] plugins = pm.getPlugins();
+    	for(Plugin pl : plugins) {
+            if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
+                pm.disablePlugin(pl);
+                Vars.disabled.increment();
+                h = true;
+            }
+        }
+    	if(!h) {
+    		sender.sendMessage("§cPlugin couldn't be disabled");
+    		return;
     	}
+    	sender.sendMessage("§aPlugin disabled");
+        return;
     }
 
-    public static boolean enable(String plugin, CommandSender sender) {
+    public static void hReload() {
+    	Bukkit.reload();
+    }
+
+    public static void enable(String plugin) {
         Plugin[] plugins = pm.getPlugins();
         for(Plugin pl : plugins) {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
@@ -348,17 +488,39 @@ public class Utils {
                 Vars.enabled.increment();
             }
         }
-        return true;
+        return;
+    }
+    
+    public static void enable(String plugin, CommandSender sender) {
+        Plugin[] plugins = pm.getPlugins();
+        boolean h = false;
+        for(Plugin pl : plugins) {
+            if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
+                pm.enablePlugin(pl);
+                Vars.enabled.increment();
+                h = true;
+            }
+        }
+        if(!h) {
+        	sender.sendMessage("§cPlugin couldn't be enabled");
+        	return;
+        }
+        sender.sendMessage("§aPlugin enabled");
+        return;
     }
 
     @SuppressWarnings("rawtypes")
-	public static boolean use(String plugin, CommandSender sender) {
+	public static void use(String plugin, CommandSender sender) {
         Plugin plug = null;
         Plugin [] plugins = pm.getPlugins();
         for(Plugin pl : plugins) {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 plug = pl;
             }
+        }
+        if(plug == null) {
+        	sender.sendMessage("§cPlugin couldn't be found");
+        	return;
         }
         ArrayList<String> out = new ArrayList<String>();
         ArrayList<String> parsedCommands = new ArrayList<String>();
@@ -406,14 +568,10 @@ public class Utils {
                 }
             }
         }
-        return true;
+        return;
     }
 
-    public static boolean info(String plugin, CommandSender sender) {
-    	
-    	if(canceled)
-    		return canceled;
-    	
+    public static void info(String plugin, CommandSender sender) {
         Plugin plug = null;
         Plugin [] plugins = pm.getPlugins();
         for(Plugin pl : plugins) {
@@ -421,6 +579,11 @@ public class Utils {
                 plug = pl;
             }
         }
+        if(plug == null) {
+        	sender.sendMessage("§cPlugin couldn't be found");
+        	return;
+        }
+        
         if(plugin != null) {
             sender.sendMessage("§cPlugin info: §a" + plug.getName());
             if(plug.getDescription().getAuthors() != null) {
@@ -448,14 +611,14 @@ public class Utils {
                     }
                 }
             if(plug.getDescription().getSoftDepend() != null) {
-                sender.sendMessage("§cPreffered plugins");
+                sender.sendMessage("§cRecommended plugins");
                     List<String> depends = plug.getDescription().getSoftDepend();
                     for(int i = 0; i < depends.size(); i++) {
                             sender.sendMessage("§c* §a" + depends.get(i));
                     }
                 }
             }
-        	return true;
+        	return;
     }
 
     public static boolean check(String plugin, CommandSender sender) {
@@ -566,7 +729,7 @@ public class Utils {
             log.info("reloader use <Plugin> -- Gives info on how to use <plugin>");
             log.info("reloader perm [Player] <Permission> -- Tells you if you or [Player] has <Permission>");
             log.info("reloader list -- List plugins in alphabetical order and sorts them by enabled or disabled");
-            log.info("/reloader config [plugin] -- Reload [plugin]'s config or leave blank to reload Reloader's config");
+            log.info("reloader config [plugin] -- Reload [plugin]'s config or leave blank to reload Reloader's config");
         }
         return true;
     }
@@ -580,11 +743,11 @@ public class Utils {
     }
     
     public static String join(String [] args) {
-    	String l = args[1];
-    	for(int i = 2; i < args.length; i++) {
+    	String l = "";
+    	for(int i = 1; i < args.length; i++) {
     		l = l + " " + args[i];
     	}
-    	l = l.trim();
+    	l = l.toLowerCase().trim();
 		return l;
     }
 }
