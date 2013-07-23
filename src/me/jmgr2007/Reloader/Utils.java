@@ -125,7 +125,8 @@ public class Utils {
 	            	try {
 						name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
 					} catch (InvalidDescriptionException e) {
-						System.out.print("§c" + compare.getName() + " has an incorect description");
+						sender.sendMessage("§c" + compare.getName() + " has an incorect description");
+						return;
 					}
 	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
 	            		files.add(compare);
@@ -155,6 +156,8 @@ public class Utils {
 						}
 					} catch (InvalidDescriptionException e) {
 						e.printStackTrace();
+						sender.sendMessage("");
+						return;
 					}
 	        	}
 	        }
