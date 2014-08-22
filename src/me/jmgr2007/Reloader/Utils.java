@@ -91,6 +91,7 @@ public class Utils {
 	        		try {
 						if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
 						    pm.enablePlugin(pl);
+						    Vars.loaded.increment();
 						    Vars.enabled.increment();
 						}
 					} catch (InvalidDescriptionException e) {
@@ -112,7 +113,7 @@ public class Utils {
         		there = true;
         
         if(there) {
-        	sender.sendMessage("§c" + "Plugin already enabled");
+        	msg(sender, "§c" + "Plugin already enabled");
         	return;
         } else {
 	        String name = "";
@@ -125,7 +126,7 @@ public class Utils {
 	            	try {
 						name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
 					} catch (InvalidDescriptionException e) {
-						sender.sendMessage("§c" + compare.getName() + " has an incorect description");
+						msg(sender, "§c" + compare.getName() + " has an incorect description");
 						return;
 					}
 	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
@@ -133,13 +134,13 @@ public class Utils {
 	            		try {
 							Bukkit.getServer().getPluginManager().loadPlugin(compare);
 						} catch (UnknownDependencyException e) {
-							sender.sendMessage("§c" + compare.getName() + "is missing a dependant plugin");
+							msg(sender, "§c" + compare.getName() + "is missing a dependant plugin");
 							return;
 						} catch (InvalidPluginException e) {
-							sender.sendMessage("§c" + compare.getName() + "is not a plugin");
+							msg(sender, "§c" + compare.getName() + "is not a plugin");
 							return;
 						} catch (InvalidDescriptionException e) {
-							sender.sendMessage("§c" + compare.getName() + " has an incorrect description");
+							msg(sender, "§c" + compare.getName() + " has an incorrect description");
 							return;
 						}
 	            	}
@@ -152,17 +153,18 @@ public class Utils {
 	        		try {
 						if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
 						    pm.enablePlugin(pl);
+						    Vars.loaded.increment();
 						    Vars.enabled.increment();
 						}
 					} catch (InvalidDescriptionException e) {
 						e.printStackTrace();
-						sender.sendMessage("");
+						msg(sender, "");
 						return;
 					}
 	        	}
 	        }
         }
-        sender.sendMessage("§aPlugin loaded and enabled");
+        msg(sender, "§aPlugin loaded and enabled");
         return;
     }
     
@@ -190,11 +192,11 @@ public class Utils {
                         pname = pname.replaceAll(".jar", "");
                         Vars.loaded.increment();
                     } catch (UnknownDependencyException e) {
-                        sender.sendMessage(ChatColor.RED + "Not a plugin file OR has an underlying problem");
+                        msg(sender, ChatColor.RED + "Not a plugin file OR has an underlying problem");
                     } catch (InvalidPluginException e) {
-                        sender.sendMessage(ChatColor.RED + "Not a plugin file OR has an underlying problem");
+                        msg(sender, ChatColor.RED + "Not a plugin file OR has an underlying problem");
                     } catch (InvalidDescriptionException e) {
-                        sender.sendMessage(ChatColor.RED + "Not a plugin file OR has an underlying problem");
+                        msg(sender, ChatColor.RED + "Not a plugin file OR has an underlying problem");
                     }
                 }
             }
@@ -437,10 +439,10 @@ public class Utils {
 		    }
 	    }
         if(!in) {
-        	sender.sendMessage("§cNot an existing plugin");
+        	msg(sender, "§cNot an existing plugin");
         }
         if(in) {
-            sender.sendMessage("§aPlugin unloaded and disabled");
+            msg(sender, "§aPlugin unloaded and disabled");
         }
         System.gc();
         return;
@@ -472,10 +474,10 @@ public class Utils {
             }
         }
     	if(!h) {
-    		sender.sendMessage("§cPlugin couldn't be disabled");
+    		msg(sender, "§cPlugin couldn't be disabled");
     		return;
     	}
-    	sender.sendMessage("§aPlugin disabled");
+    	msg(sender, "§aPlugin disabled");
         return;
     }
 
@@ -505,10 +507,10 @@ public class Utils {
             }
         }
         if(!h) {
-        	sender.sendMessage("§cPlugin couldn't be enabled");
+        	msg(sender, "§cPlugin couldn't be enabled");
         	return;
         }
-        sender.sendMessage("§aPlugin enabled");
+        msg(sender, "§aPlugin enabled");
         return;
     }
 
@@ -522,7 +524,7 @@ public class Utils {
             }
         }
         if(plug == null) {
-        	sender.sendMessage("§cPlugin couldn't be found");
+        	msg(sender, "§cPlugin couldn't be found");
         	return;
         }
         ArrayList<String> out = new ArrayList<String>();
@@ -542,20 +544,20 @@ public class Utils {
         if (!parsedCommands.isEmpty()) {
 
             StringBuilder commandsOut = new StringBuilder();
-            sender.sendMessage("§cCommands: ");    
+            msg(sender, "§cCommands: ");    
             for (int i = 0; i < parsedCommands.size(); i++) {
 
                 String pluginCommand = parsedCommands.get(i);
 
                 if (commandsOut.length() + pluginCommand.length() > 55) {
-                    sender.sendMessage(commandsOut.toString());
+                    msg(sender, commandsOut.toString());
                     commandsOut = new StringBuilder();
                 }
 
                 if (parsedCommands.size() > 0) {
-                    sender.sendMessage("§c* §a/" + pluginCommand);
+                    msg(sender, "§c* §a/" + pluginCommand);
                 } else {
-                    sender.sendMessage("§c* §a/" + pluginCommand);
+                    msg(sender, "§c* §a/" + pluginCommand);
                 }
 
             }
@@ -565,9 +567,9 @@ public class Utils {
             if(plug.getDescription().getPermissions() != null) {
                 List<Permission> perms = plug.getDescription().getPermissions();
                 if(perms.size() != 0)
-                    sender.sendMessage("§cPermissions:");
+                    msg(sender, "§cPermissions:");
                 for(int i = 0; i < perms.size(); i++) {
-                    sender.sendMessage("§c* §a" + perms.get(i).getName());
+                    msg(sender, "§c* §a" + perms.get(i).getName());
                 }
             }
         }
@@ -583,12 +585,12 @@ public class Utils {
             }
         }
         if(plug == null) {
-        	sender.sendMessage("§cPlugin couldn't be found");
+        	msg(sender, "§cPlugin couldn't be found");
         	return;
         }
         
         if(plugin != null) {
-            sender.sendMessage("§cPlugin info: §a" + plug.getName());
+            msg(sender, "§cPlugin info: §a" + plug.getName());
             if(plug.getDescription().getAuthors() != null) {
                 String author = "";
                 List<String> authors = plug.getDescription().getAuthors();
@@ -598,26 +600,26 @@ public class Utils {
                     if(i > 1)
                         author = author + ", " + authors.get(i);
                 }
-                sender.sendMessage("§cAuthor(s): §a" + author);
+                msg(sender, "§cAuthor(s): §a" + author);
             }
             if(plug.getDescription().getDescription() != null)
-                sender.sendMessage("§cDescription: §a" + plug.getDescription().getDescription());
+                msg(sender, "§cDescription: §a" + plug.getDescription().getDescription());
             if(plug.getDescription().getVersion() != null)
-                sender.sendMessage("§cVersion: §a" + plug.getDescription().getVersion());
+                msg(sender, "§cVersion: §a" + plug.getDescription().getVersion());
             if(plug.getDescription().getWebsite() != null) 
-                sender.sendMessage("§cWebsite: §a" + plug.getDescription().getWebsite());
+                msg(sender, "§cWebsite: §a" + plug.getDescription().getWebsite());
             if(plug.getDescription().getDepend() != null) {
-                sender.sendMessage("§cRequired plugins");
+                msg(sender, "§cRequired plugins");
                     List<String> depends = plug.getDescription().getDepend();
                     for(int i = 0; i < depends.size(); i++) {
-                            sender.sendMessage("§c* §a" + depends.get(i));
+                            msg(sender, "§c* §a" + depends.get(i));
                     }
                 }
             if(plug.getDescription().getSoftDepend() != null) {
-                sender.sendMessage("§cRecommended plugins");
+                msg(sender, "§cRecommended plugins");
                     List<String> depends = plug.getDescription().getSoftDepend();
                     for(int i = 0; i < depends.size(); i++) {
-                            sender.sendMessage("§c* §a" + depends.get(i));
+                            msg(sender, "§c* §a" + depends.get(i));
                     }
                 }
             }
@@ -634,33 +636,34 @@ public class Utils {
         }
         if(plug != null) {
             if(plug.isEnabled()) {
-                sender.sendMessage("§a" + plug.getName() + " is enabled");
+                msg(sender, "§a" + plug.getName() + " is enabled");
             } else {
-                sender.sendMessage("§c" + plug.getName() + " Is disabled");
+                msg(sender, "§c" + plug.getName() + " Is disabled");
             }
             return true;
         } else {
-            sender.sendMessage("This is not a plugin loaded on plugin server");
+            msg(sender, "This is not a plugin loaded on plugin server");
             return true;
         }
     }
 
     public static boolean perm(CommandSender sender, String permission) {
         if(sender.hasPermission(permission)) {
-            sender.sendMessage("§aYou have permission " + permission);
+            msg(sender, "§aYou have permission " + permission);
         } else {
-            sender.sendMessage("§cYou don't have permission " + permission);
+            msg(sender, "§cYou don't have permission " + permission);
         }
         return true;
     }
     
-    public static boolean perm(String player, CommandSender sender, String permission) {
+    @SuppressWarnings("deprecation")
+	public static boolean perm(String player, CommandSender sender, String permission) {
     	if(Bukkit.getServer().getPlayer(player) != null) {
             Player target = Bukkit.getServer().getPlayer(player);
 	        if(target.hasPermission(permission)) {
-	            sender.sendMessage("§a" + target.getName() + " has permission " + permission);
+	            msg(sender, "§a" + target.getName() + " has permission " + permission);
 	        } else {
-	            sender.sendMessage("§c" + target.getName() + " doesn't have permission " + permission);
+	            msg(sender, "§c" + target.getName() + " doesn't have permission " + permission);
 	        }
     	}
         return true;
@@ -679,61 +682,93 @@ public class Utils {
         Collections.sort(enabled,  String.CASE_INSENSITIVE_ORDER);
         Collections.sort(disabled,  String.CASE_INSENSITIVE_ORDER);
         if(plugins.length != 0)
-        	sender.sendMessage("§a" + plugins.length + " plugins loaded");
+        	msg(sender, "§a" + plugins.length + " plugins loaded");
         if(!enabled.isEmpty()) {
-            sender.sendMessage("§6Enabled:");
+            msg(sender, "§6Enabled:");
             String enable = "";
             for(int i = 0; i < enabled.size(); i++) {
                 enable = enable + ", "  + enabled.get(i);
             }
             enable = enable.replaceFirst(", ", "");
-            sender.sendMessage("§a" + enable);
+            msg(sender, "§a" + enable);
         }
         if(!disabled.isEmpty()) {
             String disable = "";
-            sender.sendMessage("§6Disabled:");
+            msg(sender, "§6Disabled:");
             for(int i = 0; i < disabled.size(); i++) {
                 disable = disable + ", " + disabled.get(i);
             }
             disable = disable.replaceFirst(", ", "");
-            sender.sendMessage("§c" + disable);
+            msg(sender, "§c" + disable);
+        }
+        return true;
+    }
+    
+    public static boolean vList(CommandSender sender) {
+        Plugin[] plugins = pm.getPlugins();
+        ArrayList<String> enabled = new ArrayList<String>();
+        ArrayList<String> disabled = new ArrayList<String>();
+        for(Plugin pl : plugins) {
+            if(pl.isEnabled())
+                enabled.add(pl.getName());
+            else
+                disabled.add(pl.getName());
+        }
+        Collections.sort(enabled,  String.CASE_INSENSITIVE_ORDER);
+        Collections.sort(disabled,  String.CASE_INSENSITIVE_ORDER);
+        if(plugins.length != 0)
+        	msg(sender, "§a" + plugins.length + " plugins loaded");
+        if(!enabled.isEmpty()) {
+            msg(sender, "§6Enabled:");
+            String enable = "";
+            for(int i = 0; i < enabled.size(); i++) {
+                enable = enable + ", "  + enabled.get(i) + " §7" + pm.getPlugin(enabled.get(i)).getDescription().getVersion() + "§a";
+            }
+            enable = enable.replaceFirst(", ", "");
+            msg(sender, "§a" + enable);
+        }
+        if(!disabled.isEmpty()) {
+            String disable = "";
+            msg(sender, "§6Disabled:");
+            for(int i = 0; i < disabled.size(); i++) {
+                disable = disable + ", " + disabled.get(i) + " §7" + pm.getPlugin(enabled.get(i)).getDescription().getVersion() + "§c";
+            }
+            disable = disable.replaceFirst(", ", "");
+            msg(sender, "§c" + disable);
         }
         return true;
     }
     
     public static void msg(CommandSender sender, String msg) {
-    	sender.sendMessage(msg);
+    	if (sender instanceof Player) {
+    		sender.sendMessage(msg);
+    	} else {
+    		Logger log = Bukkit.getServer().getLogger();
+    		log.info(msg);
+    	}
     }
     
     public static boolean help(CommandSender sender) {
-        Logger log = Bukkit.getServer().getLogger();
-        if (sender instanceof Player) {
-            sender.sendMessage("§6----------- §cReloader help §6-----------");
-            sender.sendMessage("§4/reloader reload <Plugin|all|*|harsh> §6-- §cReload <Plugin>/reload all plugins in the server/reload plugins and load new one");
-            sender.sendMessage("§4/reloader disable <Plugin|all|*> §6-- §cDisable <Plugin>");
-            sender.sendMessage("§4/reloader enable <Plugin|all|*> §6-- §cEnable <Plugin>");
-            sender.sendMessage("§4/reloader load <File> §6-- §cLoad <File>");
-            sender.sendMessage("§4/reloader unload <File> §6-- §cUn-Load <File>");
-            sender.sendMessage("§4/reloader check <Plugin> §6-- §cCheck whether or not <Plugin> is enabled");
-            sender.sendMessage("§4/reloader info <Plugin> §6-- §cGives info on <Plugin>");
-            sender.sendMessage("§4/reloader use <Plugin> §6-- §cGives info on how to use <Plugin>");
-            sender.sendMessage("§4/reloader perm [Player] <Permission> §6-- §cTells you if you or [Player] has <Permission>");
-            sender.sendMessage("§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled");
-            sender.sendMessage("§4/reloader config [plugin] §6-- §cReload [plugin]'s config or leave blank to reload Reloader's config");
-        } else {
-            log.info("----------- Reloader help -----------");
-            log.info("reloader reload <plugin|all|*|harsh> -- Reload <Plugin>/reload all plugins in the server/reload plugins and load new ones");
-            log.info("reloader disable <Plugin|all|*> -- Disable <Plugin>");
-            log.info("reloader enable <Plugin|all|*> -- Enable <Plugin>");
-            log.info("reloader load <File> -- Load <File>");
-            log.info("reloader unload <File> -- Un-Load <File>");
-            log.info("reloader check <Plugin> -- check whether or not <Plugin> is enabled");
-            log.info("reloader info <Plugin> -- Gives info on <Plugin>");
-            log.info("reloader use <Plugin> -- Gives info on how to use <plugin>");
-            log.info("reloader perm [Player] <Permission> -- Tells you if you or [Player] has <Permission>");
-            log.info("reloader list -- List plugins in alphabetical order and sorts them by enabled or disabled");
-            log.info("reloader config [plugin] -- Reload [plugin]'s config or leave blank to reload Reloader's config");
-        }
+    	msg(sender, "§6----------- §cReloader help §6-----------");
+    	msg(sender, "§4/reloader reload <Plugin|all|*|harsh> §6-- §cReload <Plugin>/reload all plugins in the server/reload plugins and load new one");
+    	msg(sender, "§4/reloader disable <Plugin|all|*> §6-- §cDisable <Plugin>");
+    	msg(sender, "§4/reloader enable <Plugin|all|*> §6-- §cEnable <Plugin>");
+    	msg(sender, "§4/reloader load <File> §6-- §cLoad <File>");
+    	msg(sender, "§4/reloader unload <File> §6-- §cUn-Load <File>");
+    	msg(sender, "§4/reloader check <Plugin> §6-- §cCheck whether or not <Plugin> is enabled");
+    	msg(sender, "§4/reloader info <Plugin> §6-- §cGives info on <Plugin>");
+    	msg(sender, "§4/reloader use <Plugin> §6-- §cGives info on how to use <Plugin>");
+    	msg(sender, "§4/reloader perm [Player] <Permission> §6-- §cTells you if you or [Player] has <Permission>");
+    	msg(sender, "§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled");
+    	msg(sender, "§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled with version included");
+    	msg(sender, "§4/reloader config [plugin] §6-- §cReload [plugin]'s config or leave blank to reload Reloader's config");
+        return true;
+    }
+    
+    public static boolean aHelp(CommandSender sender) {
+    	msg(sender, "§6----------- §cReloader help §6-----------");
+    	msg(sender, "§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled");
+    	msg(sender, "§4/reloader list -v §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled with version included");
         return true;
     }
     

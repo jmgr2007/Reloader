@@ -68,7 +68,7 @@ public class Reloader extends JavaPlugin {
     private void startMetrics() throws IOException {
         Metrics metrics;
         metrics = new Metrics(this);
-        Graph load = metrics.createGraph("Plugins loaded/unloaded");
+        Graph load = metrics.createGraph("loaded");
         
         load.addPlotter(new Plotter("Plugins Loaded") {
             
@@ -97,7 +97,7 @@ public class Reloader extends JavaPlugin {
             }
         });
         
-        Graph enable = metrics.createGraph("Plugins enabled/disabled");
+        Graph enable = metrics.createGraph("enabled");
         
         enable.addPlotter(new Metrics.Plotter("Plugins Enabled") {
             
@@ -125,7 +125,7 @@ public class Reloader extends JavaPlugin {
             }
         });
         
-        Graph reload = metrics.createGraph("Plugins Reloaded");
+        Graph reload = metrics.createGraph("Reloaded");
         
         reload.addPlotter(new Metrics.Plotter("Plugins Reloaded") {
             

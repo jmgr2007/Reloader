@@ -13,7 +13,7 @@ public class Val {
     }
 
     public void increment() {
-        value = value++;
+        value = value + 1;
         return;
     }
 

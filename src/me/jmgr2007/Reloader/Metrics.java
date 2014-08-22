@@ -468,6 +468,11 @@ public class Metrics {
                 }
             }
         }
+    	Vars.disabled.reset();
+    	Vars.enabled.reset();
+    	Vars.loaded.reset();
+    	Vars.reloaded.reset();
+    	Vars.unloaded.reset();
     }
 
     /**

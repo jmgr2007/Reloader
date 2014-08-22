@@ -16,6 +16,13 @@ public class Pl implements Listener {
 				event.getPlayer().sendMessage("§cYou can not use this command on this server");
 				event.setCancelled(true);
 			}
+		} else if (event.getMessage().equalsIgnoreCase("/pl -v") || event.getMessage().equalsIgnoreCase("/plugins -v")) {
+			if(Bukkit.getPluginManager().getPlugin("Reloader") != null && Bukkit.getServer().getPluginManager().getPlugin("Reloader").getConfig().getBoolean("pl", true) && event.getPlayer().hasPermission("reloader.list")) 
+				event.setMessage("/reloader list -v");
+			if(Bukkit.getPluginManager().getPlugin("Reloader") != null && Bukkit.getServer().getPluginManager().getPlugin("Reloader").getConfig().getBoolean("default-pl", false)) {
+				event.getPlayer().sendMessage("§cYou can not use this command on this server");
+				event.setCancelled(true);
+			}
 		}
 		    if (!event.isCancelled() && event.getMessage().toLowerCase().startsWith("/reload ")) 
 		        event.setMessage("/reloader reload " + event.getMessage().substring(8));

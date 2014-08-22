@@ -35,7 +35,6 @@ public class ReloaderListener implements CommandExecutor {
                 	sender.sendMessage("§aConfig reloaded");
                 } else if (args[0].equalsIgnoreCase("reload")) {
                     if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
-                    	plugins = Bukkit.getServer().getPluginManager().getPlugins();
                         plugin.getServer().broadcastMessage("§2[Reloader] §4Reloading ALL plugins");
                         Vars.reloaded.add(plugins.length);
                         for(Plugin pl : plugins) {
@@ -62,14 +61,14 @@ public class ReloaderListener implements CommandExecutor {
                                 utilz(plugins[i].getName());
 								Utils.unload(plugins[i].getName());
                                 Utils.load(plugins[i].getName());
-                                sender.sendMessage(ChatColor.GREEN + "Plugin reloaded");
+                                Utils.msg(sender, ChatColor.GREEN + "Plugin reloaded");
                             }
                         }
                     }
                 } else if (args[0].equalsIgnoreCase("disable")) {
                     if (args.length >= 2) {
                         if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
-                            sender.sendMessage(ChatColor.RED + "Disabling all non-exempt plugins");
+                        	Utils.msg(sender, ChatColor.RED + "Disabling all non-exempt plugins");
                             for(Plugin pl : plugins) {
                             	utilz(pl.getName());
                             	if(!pl.getName().toLowerCase().startsWith("reloader".toLowerCase()))
@@ -82,12 +81,11 @@ public class ReloaderListener implements CommandExecutor {
                     }
                 } else if (args[0].equalsIgnoreCase("enable")) {
                     if (args.length >= 2) {
-                        if (args[1].equalsIgnoreCase("all")
-                                || args[1].equalsIgnoreCase("*")) {
+                        if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
                             for(Plugin pl : plugins) {
                                 Utils.enable(pl.getName());
                             }
-                            sender.sendMessage(ChatColor.GREEN + "Enabling all plugins");
+                            Utils.msg(sender, ChatColor.GREEN + "Enabling all plugins");
                         } else {
                         	Utils.enable(Utils.join(args), sender);
                         }
@@ -110,15 +108,34 @@ public class ReloaderListener implements CommandExecutor {
 	                	return Utils.perm(sender, args[1]);
 	                }
 	            } else if (args[0].equalsIgnoreCase("list")) {
+	            	if (args.length == 2) {
+	            	    if (args[1].equalsIgnoreCase("-v")) {
+	            		    return Utils.vList(sender);
+	            	    }
+	        		}
 	            	return Utils.list(sender);
 	            } else {
-	                    sender.sendMessage(ChatColor.RED + "Invalid Args");
-	                    sender.sendMessage("Disabled: " + Vars.disabled.getValue() + " Enabled: " + Vars.enabled.getValue() + " Loaded: " + Vars.loaded.getValue() + " UnLoaded: " + Vars.unloaded.getValue() + " ReLoaded: " + Vars.reloaded.getValue());
+	            		Utils.msg(sender, ChatColor.RED + "Invalid Args");
+	            		Utils.msg(sender, "Disabled: " + Vars.disabled.getValue() + " Enabled: " + Vars.enabled.getValue() + " Loaded: " + Vars.loaded.getValue() + " UnLoaded: " + Vars.unloaded.getValue() + " ReLoaded: " + Vars.reloaded.getValue());
 	                    return true;
 	            }
             }
+        } else if (sender.hasPermission("reloader.list")) {
+        	if (args[0].equalsIgnoreCase("help")) {
+        		return Utils.aHelp(sender);
+        	} else if (args[0].equalsIgnoreCase("list")) {
+        		if (args.length == 2) {
+            	    if (args[1].equalsIgnoreCase("-v")) {
+            		    return Utils.vList(sender);
+            	    }
+        		}
+            	return Utils.list(sender);
+        	} else {
+        		Utils.msg(sender, ChatColor.RED + "Invalid Args");
+                return true;
+        	}
         } else {
-            sender.sendMessage(ChatColor.RED + "Invalid permissions");
+        	Utils.msg(sender, ChatColor.RED + "Invalid permissions");
             return true;
         }
         return true;
