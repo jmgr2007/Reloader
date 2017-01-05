@@ -7,9 +7,7 @@ import java.util.logging.Logger;
 import me.jmgr2007.Reloader.Metrics.Plotter;
 import me.jmgr2007.Reloader.Metrics.Graph;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -18,7 +16,7 @@ public class Reloader extends JavaPlugin {
     private final Pl pl = new Pl(); 
     
     public void onEnable() {
-    	Vars.disabled = new Val();
+    	Vars.disabled = new Val();	
     	Vars.enabled = new Val();
     	Vars.loaded = new Val();
     	Vars.reloaded = new Val();
@@ -39,15 +37,7 @@ public class Reloader extends JavaPlugin {
             this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
                 @Override
                 public void run() {
-                    Bukkit.getServer().broadcastMessage("§6[§2Reloader§6] §aRunning automatic reload, Please wait for lag to end.");
-                    PluginManager pm = Bukkit.getServer().getPluginManager();
-                    Plugin[] plugins = pm.getPlugins();
-                    for(int i = 0; i < plugins.length; i++) {
-                        if(plugins[i].getName() != "Reloader") {
-                            Utils.unload(plugins[i].getName());
-                            Utils.load(plugins[i].getName());
-                        }
-                    }
+                	Utils.scheduler();
                 }
             }, (((this.getConfig().getLong("timer.hours")*60*60) + (this.getConfig().getLong("timer.minutes")*60) + this.getConfig().getLong("timer.seconds")) * 20), (((this.getConfig().getLong("timer.hours")*60*60) + (this.getConfig().getLong("timer.minutes")*60) + this.getConfig().getLong("timer.seconds")) * 20));
         }

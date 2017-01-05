@@ -30,6 +30,7 @@ import org.bukkit.plugin.UnknownDependencyException;
 public class Utils {
 	private static PluginManager pm = Bukkit.getServer().getPluginManager();
 	private static boolean canceled;
+	private static Plugin plugin = pm.getPlugin("Reloader");
 	
 	public Utils(String name, CommandSender sender) {
 		if(exempt(name))
@@ -42,7 +43,6 @@ public class Utils {
 	}
 
     public static void load(final String pluginName) {
-        PluginManager pm = Bukkit.getServer().getPluginManager();
         
         
         boolean there = false;
@@ -52,11 +52,11 @@ public class Utils {
         		there = true;
         
         if(there) {
-        	System.out.print("Plugin already enabled");
+        	System.out.print("Plugin already loaded");
         	return;
         } else {
 	        String name = "";
-	        String path = pm.getPlugin("Reloader").getDataFolder().getParent();
+	        String path = plugin.getDataFolder().getParent();
 	        File folder = new File(path);
 	        ArrayList<File> files = new ArrayList<File>();
 	        File[] listOfFiles = folder.listFiles();
@@ -70,7 +70,7 @@ public class Utils {
 	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
 	            		files.add(compare);
 	            		try {
-							Bukkit.getServer().getPluginManager().loadPlugin(compare);
+							pm.loadPlugin(compare);
 						} catch (UnknownDependencyException e) {
 							System.out.print(compare.getName() + "is missing a dependant plugin");
 							return;
@@ -104,7 +104,6 @@ public class Utils {
     }
 
     public static void load(final String pluginName, CommandSender sender) {
-        PluginManager pm = Bukkit.getServer().getPluginManager();
         
         boolean there = false;
         
@@ -113,7 +112,7 @@ public class Utils {
         		there = true;
         
         if(there) {
-        	msg(sender, ChatColor.RED + "Plugin already enabled");
+        	msg(sender, ChatColor.RED + "Plugin already loaded");
         	return;
         } else {
 	        String name = "";
@@ -130,12 +129,12 @@ public class Utils {
 	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
 	            		files.add(compare);
 	            		try {
-							Bukkit.getServer().getPluginManager().loadPlugin(compare);
+							pm.loadPlugin(compare);
 						} catch (UnknownDependencyException e) {
-							msg(sender, ChatColor.RED + compare.getName() + "is missing a dependant plugin");
+							msg(sender, ChatColor.RED + compare.getName() + " is missing a dependant plugin");
 							return;
 						} catch (InvalidPluginException e) {
-							msg(sender, ChatColor.RED + compare.getName() + "is not a plugin");
+							msg(sender, ChatColor.RED + compare.getName() + " is not a plugin");
 							return;
 						} catch (InvalidDescriptionException e) {
 							msg(sender, ChatColor.RED + compare.getName() + " has an incorrect description");
@@ -162,12 +161,11 @@ public class Utils {
 	        	}
 	        }
         }
-        msg(sender, "§aPlugin loaded and enabled");
+        msg(sender, ChatColor.GREEN + "Plugin loaded and enabled");
         return;
     }
-    
+      
     public static void fload(final String pluginName, CommandSender sender) {
-        PluginManager pm = Bukkit.getServer().getPluginManager();
         
         boolean there = false;
         
@@ -176,7 +174,7 @@ public class Utils {
         		there = true;
         
         if(there) {
-        	msg(sender, ChatColor.RED + "Plugin already enabled");
+        	msg(sender, ChatColor.RED + "Plugin already loaded");
         	return;
         } else {
 	        String name = "";
@@ -194,12 +192,12 @@ public class Utils {
 	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
 	            		files.add(compare);
 	            		try {
-							Bukkit.getServer().getPluginManager().loadPlugin(compare);
+							pm.loadPlugin(compare);
 						} catch (UnknownDependencyException e) {
-							msg(sender, ChatColor.RED + compare.getName() + "is missing a dependant plugin");
+							msg(sender, ChatColor.RED + compare.getName() + " is missing a dependant plugin");
 							return;
 						} catch (InvalidPluginException e) {
-							msg(sender, ChatColor.RED + compare.getName() + "is not a plugin");
+							msg(sender, ChatColor.RED + compare.getName() + " is not a plugin");
 							return;
 						} catch (InvalidDescriptionException e) {
 							msg(sender, ChatColor.RED + compare.getName() + " has an incorrect description");
@@ -213,7 +211,7 @@ public class Utils {
 	        for(Plugin pl : plugins) {
 	        	for(File compare : files) {
 	        		try {
-						if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
+						if(pl.getName().equalsIgnoreCase(plugin.getPluginLoader().getPluginDescription(compare).getName())) {
 						    pm.enablePlugin(pl);
 						    Vars.loaded.increment();
 						    Vars.enabled.increment();
@@ -235,8 +233,7 @@ public class Utils {
     		return;
     	
     	pluginName = pluginName.toLowerCase().trim();
-        PluginManager manager = Bukkit.getServer().getPluginManager();
-        SimplePluginManager spm = (SimplePluginManager) manager;
+        SimplePluginManager spm = (SimplePluginManager) pm;
         SimpleCommandMap commandMap = null;
         List<Plugin> plugins = null;
         Map<String, Plugin> lookupNames = null;
@@ -285,11 +282,11 @@ public class Utils {
 		}
         boolean in = false;
 
-        for (Plugin pl : Bukkit.getServer().getPluginManager().getPlugins()) {
+        for (Plugin pl : pm.getPlugins()) {
         	if(in)
         		break;
             if (pl.getName().toLowerCase().startsWith(pluginName.toLowerCase())) {
-                manager.disablePlugin(pl);
+                pm.disablePlugin(pl);
                 if (plugins != null && plugins.contains(pl)) {
                     plugins.remove(pl);
                     Vars.unloaded.increment();
@@ -326,7 +323,7 @@ public class Utils {
                         }
                     }
                 }
-			    for (Plugin plu : Bukkit.getServer().getPluginManager().getPlugins()) {
+			    for (Plugin plu : pm.getPlugins()) {
 			        if(plu.getDescription().getDepend() != null) {
 				        for (String depend : plu.getDescription().getDepend()) {
 				        	if(depend.equalsIgnoreCase(pl.getName())) {
@@ -348,12 +345,13 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static void unload(String pluginName, CommandSender sender) {
     	
-    	if(canceled)
+    	if(canceled) {
+    		msg(sender, ChatColor.RED + "This plugin cannot be unloaded");
     		return;
+    	}
     	
     	pluginName = pluginName.toLowerCase().trim();
-        PluginManager manager = Bukkit.getServer().getPluginManager();
-        SimplePluginManager spm = (SimplePluginManager) manager;
+        SimplePluginManager spm = (SimplePluginManager) pm;
         SimpleCommandMap commandMap = null;
         List<Plugin> plugins = null;
         Map<String, Plugin> lookupNames = null;
@@ -402,11 +400,11 @@ public class Utils {
 		}
         boolean in = false;
 
-        for (Plugin pl : Bukkit.getServer().getPluginManager().getPlugins()) {
+        for (Plugin pl : pm.getPlugins()) {
         	if(in)
         		break;
             if (pl.getName().toLowerCase().startsWith(pluginName.toLowerCase())) {
-                manager.disablePlugin(pl);
+                pm.disablePlugin(pl);
                 if (plugins != null && plugins.contains(pl)) {
                     plugins.remove(pl);
                     Vars.unloaded.increment();
@@ -443,7 +441,7 @@ public class Utils {
                         }
                     }
                 }
-			    for (Plugin plu : Bukkit.getServer().getPluginManager().getPlugins()) {
+			    for (Plugin plu : pm.getPlugins()) {
 			        if(plu.getDescription().getDepend() != null) {
 				        for (String depend : plu.getDescription().getDepend()) {
 				        	if(depend.equalsIgnoreCase(pl.getName())) {
@@ -456,10 +454,10 @@ public class Utils {
 		    }
 	    }
         if(!in) {
-        	msg(sender, "§cNot an existing plugin");
+        	msg(sender, ChatColor.RED + "Not an existing plugin");
         }
         if(in) {
-            msg(sender, "§aPlugin unloaded and disabled");
+            msg(sender, ChatColor.GREEN + "Plugin unloaded and disabled");
         }
         System.gc();
         return;
@@ -479,8 +477,10 @@ public class Utils {
     }
 
     public static void disable(String plugin, CommandSender sender) {
-    	if(canceled)
+    	if(canceled) {
+    		msg(sender, ChatColor.RED + "This plugin cannot be disabled");
     		return;
+    	}
     	boolean h = false;
     	Plugin [] plugins = pm.getPlugins();
     	for(Plugin pl : plugins) {
@@ -491,10 +491,10 @@ public class Utils {
             }
         }
     	if(!h) {
-    		msg(sender, "§cPlugin couldn't be disabled");
+    		msg(sender, ChatColor.GREEN + "Plugin couldn't be disabled");
     		return;
     	}
-    	msg(sender, "§aPlugin disabled");
+    	msg(sender, ChatColor.GREEN + "Plugin disabled");
         return;
     }
 
@@ -524,16 +524,18 @@ public class Utils {
             }
         }
         if(!h) {
-        	msg(sender, "§cPlugin couldn't be enabled");
+        	msg(sender, ChatColor.RED + "Plugin couldn't be enabled");
         	return;
         }
-        msg(sender, "§aPlugin enabled");
+        msg(sender, ChatColor.GREEN + "Plugin enabled");
         return;
     }
 
     @SuppressWarnings("rawtypes")
 	public static void use(String plugin, CommandSender sender) {
         Plugin plug = null;
+        if (plugin.trim() == "")
+        	plugin = "Reloader";
         Plugin [] plugins = pm.getPlugins();
         for(Plugin pl : plugins) {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
@@ -541,7 +543,7 @@ public class Utils {
             }
         }
         if(plug == null) {
-        	msg(sender, "§cPlugin couldn't be found");
+        	msg(sender, ChatColor.RED + "Plugin couldn't be found");
         	return;
         }
         ArrayList<String> out = new ArrayList<String>();
@@ -561,7 +563,7 @@ public class Utils {
         if (!parsedCommands.isEmpty()) {
 
             StringBuilder commandsOut = new StringBuilder();
-            msg(sender, "§cCommands: ");    
+            msg(sender, ChatColor.RED + "Commands: ");    
             for (int i = 0; i < parsedCommands.size(); i++) {
 
                 String pluginCommand = parsedCommands.get(i);
@@ -570,23 +572,26 @@ public class Utils {
                     msg(sender, commandsOut.toString());
                     commandsOut = new StringBuilder();
                 }
-
-                if (parsedCommands.size() > 0) {
-                    msg(sender, "§c* §a/" + pluginCommand);
-                } else {
-                    msg(sender, "§c* §a/" + pluginCommand);
+                if (parsedCommands.size() < 10)
+                	msg(sender, ChatColor.RED + "* " + ChatColor.GREEN + "/" + pluginCommand);
+                else {
+                	msg(sender,ChatColor.GREEN + parsedCommands.toString().replace("[","").replace("]", ""));
+                	break;
                 }
-
             }
-
             out.add(commandsOut.toString());
+        }
 
-            if(plug.getDescription().getPermissions() != null) {
-                List<Permission> perms = plug.getDescription().getPermissions();
-                if(perms.size() != 0)
-                    msg(sender, "§cPermissions:");
-                for(int i = 0; i < perms.size(); i++) {
-                    msg(sender, "§c* §a" + perms.get(i).getName());
+        if(plug.getDescription().getPermissions() != null) {
+            List<Permission> perms = plug.getDescription().getPermissions();
+            if(perms.size() != 0) {
+                msg(sender, ChatColor.RED + "Permissions:");
+                if (perms.size() < 10) {
+	                for(int i = 0; i < perms.size(); i++) {
+	                    msg(sender, ChatColor.RED + "* " + ChatColor.GREEN + perms.get(i).getName());
+	                }
+                } else {
+                	msg(sender, ChatColor.GREEN + perms.toString().replace("[", "").replace("]", ""));
                 }
             }
         }
@@ -601,14 +606,16 @@ public class Utils {
                 plug = pl;
             }
         }
+        if (plugin == "")
+        	plug = Utils.plugin;
         if(plug == null) {
-        	msg(sender, "§cPlugin couldn't be found");
+        	msg(sender, ChatColor.RED + "Plugin couldn't be found");
         	return;
         }
         
         if(plugin != null) {
-            msg(sender, "§cPlugin info: §a" + plug.getName());
-            if(plug.getDescription().getAuthors() != null) {
+            msg(sender, ChatColor.RED + "Plugin info: " + ChatColor.GREEN + plug.getName());
+            if(plug.getDescription().getAuthors() != null && !plug.getDescription().getAuthors().isEmpty()) {
                 String author = "";
                 List<String> authors = plug.getDescription().getAuthors();
                 for(int i = 0; i < authors.size(); i++) {
@@ -617,26 +624,26 @@ public class Utils {
                     if(i > 1)
                         author = author + ", " + authors.get(i);
                 }
-                msg(sender, "§cAuthor(s): §a" + author);
+                msg(sender, ChatColor.RED + "Author(s): " + ChatColor.GREEN + author);
             }
-            if(plug.getDescription().getDescription() != null)
-                msg(sender, "§cDescription: §a" + plug.getDescription().getDescription());
-            if(plug.getDescription().getVersion() != null)
-                msg(sender, "§cVersion: §a" + plug.getDescription().getVersion());
-            if(plug.getDescription().getWebsite() != null) 
-                msg(sender, "§cWebsite: §a" + plug.getDescription().getWebsite());
-            if(plug.getDescription().getDepend() != null) {
-                msg(sender, "§cRequired plugins");
+            if(plug.getDescription().getDescription() != null && !plug.getDescription().getDescription().isEmpty())
+                msg(sender, ChatColor.RED + "Description: " + ChatColor.GREEN + plug.getDescription().getDescription());
+            if(plug.getDescription().getVersion() != null && !plug.getDescription().getVersion().isEmpty())
+                msg(sender, ChatColor.RED + "Version: " + ChatColor.GREEN + plug.getDescription().getVersion());
+            if(plug.getDescription().getWebsite() != null && !plug.getDescription().getWebsite().isEmpty()) 
+                msg(sender, ChatColor.RED + "Website: " + ChatColor.GREEN + plug.getDescription().getWebsite());
+            if(plug.getDescription().getDepend() != null && !plug.getDescription().getDepend().isEmpty()) {
+                msg(sender, ChatColor.RED + "Required plugins");
                     List<String> depends = plug.getDescription().getDepend();
                     for(int i = 0; i < depends.size(); i++) {
-                            msg(sender, "§c* §a" + depends.get(i));
+                            msg(sender, ChatColor.RED + "* " + ChatColor.GREEN + depends.get(i));
                     }
                 }
-            if(plug.getDescription().getSoftDepend() != null) {
-                msg(sender, "§cRecommended plugins");
+            if(plug.getDescription().getSoftDepend() != null && !plug.getDescription().getSoftDepend().isEmpty()) {
+                msg(sender, ChatColor.RED + "Recommended plugins");
                     List<String> depends = plug.getDescription().getSoftDepend();
                     for(int i = 0; i < depends.size(); i++) {
-                            msg(sender, "§c* §a" + depends.get(i));
+                            msg(sender, ChatColor.RED + "* " + ChatColor.GREEN + depends.get(i));
                     }
                 }
             }
@@ -653,9 +660,9 @@ public class Utils {
         }
         if(plug != null) {
             if(plug.isEnabled()) {
-                msg(sender, "§a" + plug.getName() + " is enabled");
+                msg(sender, ChatColor.GREEN + plug.getName() + " is enabled");
             } else {
-                msg(sender, "§c" + plug.getName() + " Is disabled");
+                msg(sender, ChatColor.RED + plug.getName() + " Is disabled");
             }
             return true;
         } else {
@@ -666,9 +673,9 @@ public class Utils {
 
     public static boolean perm(CommandSender sender, String permission) {
         if(sender.hasPermission(permission)) {
-            msg(sender, "§aYou have permission " + permission);
+            msg(sender, ChatColor.GREEN + "You have permission " + permission);
         } else {
-            msg(sender, "§cYou don't have permission " + permission);
+            msg(sender, ChatColor.RED + "You don't have permission " + permission);
         }
         return true;
     }
@@ -678,9 +685,9 @@ public class Utils {
     	if(Bukkit.getServer().getPlayer(player) != null) {
             Player target = Bukkit.getServer().getPlayer(player);
 	        if(target.hasPermission(permission)) {
-	            msg(sender, "§a" + target.getName() + " has permission " + permission);
+	            msg(sender, ChatColor.GREEN + target.getName() + " has permission " + permission);
 	        } else {
-	            msg(sender, "§c" + target.getName() + " doesn't have permission " + permission);
+	            msg(sender, ChatColor.RED + target.getName() + " doesn't have permission " + permission);
 	        }
     	}
         return true;
@@ -699,24 +706,24 @@ public class Utils {
         Collections.sort(enabled,  String.CASE_INSENSITIVE_ORDER);
         Collections.sort(disabled,  String.CASE_INSENSITIVE_ORDER);
         if(plugins.length != 0)
-        	msg(sender, "§a" + plugins.length + " plugins loaded");
+        	msg(sender, ChatColor.GREEN + "" + plugins.length + " plugins loaded");
         if(!enabled.isEmpty()) {
-            msg(sender, "§6Enabled:");
+            msg(sender, ChatColor.GOLD + "Enabled:");
             String enable = "";
             for(int i = 0; i < enabled.size(); i++) {
                 enable = enable + ", "  + enabled.get(i);
             }
             enable = enable.replaceFirst(", ", "");
-            msg(sender, "§a" + enable);
+            msg(sender, ChatColor.GREEN + enable);
         }
         if(!disabled.isEmpty()) {
             String disable = "";
-            msg(sender, "§6Disabled:");
+            msg(sender, ChatColor.GOLD + "Disabled:");
             for(int i = 0; i < disabled.size(); i++) {
                 disable = disable + ", " + disabled.get(i);
             }
             disable = disable.replaceFirst(", ", "");
-            msg(sender, "§c" + disable);
+            msg(sender, ChatColor.RED + disable);
         }
         return true;
     }
@@ -734,24 +741,24 @@ public class Utils {
         Collections.sort(enabled,  String.CASE_INSENSITIVE_ORDER);
         Collections.sort(disabled,  String.CASE_INSENSITIVE_ORDER);
         if(plugins.length != 0)
-        	msg(sender, "§a" + plugins.length + " plugins loaded");
+        	msg(sender, ChatColor.GREEN + "" + plugins.length + " plugins loaded");
         if(!enabled.isEmpty()) {
-            msg(sender, "§6Enabled:");
+            msg(sender, ChatColor.GOLD + "Enabled:");
             String enable = "";
             for(int i = 0; i < enabled.size(); i++) {
-                enable = enable + ", "  + enabled.get(i) + " §7" + pm.getPlugin(enabled.get(i)).getDescription().getVersion() + "§a";
+                enable = enable + ChatColor.GREEN + ", "  + enabled.get(i) + ChatColor.GRAY + " " + pm.getPlugin(enabled.get(i)).getDescription().getVersion();
             }
             enable = enable.replaceFirst(", ", "");
-            msg(sender, "§a" + enable);
+            msg(sender, ChatColor.GREEN + enable);
         }
         if(!disabled.isEmpty()) {
             String disable = "";
-            msg(sender, "§6Disabled:");
+            msg(sender, ChatColor.GOLD + "Disabled:");
             for(int i = 0; i < disabled.size(); i++) {
-                disable = disable + ", " + disabled.get(i) + " §7" + pm.getPlugin(enabled.get(i)).getDescription().getVersion() + "§c";
+                disable = disable + ", " + disabled.get(i) + ChatColor.GRAY +" " + pm.getPlugin(disabled.get(i)).getDescription().getVersion();
             }
             disable = disable.replaceFirst(", ", "");
-            msg(sender, "§c" + disable);
+            msg(sender, ChatColor.RED + disable);
         }
         return true;
     }
@@ -777,7 +784,7 @@ public class Utils {
     	msg(sender, "§4/reloader use <Plugin> §6-- §cGives info on how to use <Plugin>");
     	msg(sender, "§4/reloader perm [Player] <Permission> §6-- §cTells you if you or [Player] has <Permission>");
     	msg(sender, "§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled");
-    	msg(sender, "§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled with version included");
+    	msg(sender, "§4/reloader list -v §6-- §cAdds versions to the plugin list");
     	msg(sender, "§4/reloader config [plugin] §6-- §cReload [plugin]'s config or leave blank to reload Reloader's config");
         return true;
     }
@@ -791,8 +798,9 @@ public class Utils {
     
     public static boolean exempt(String name) {
     	for(String ex : Bukkit.getPluginManager().getPlugin("Reloader").getConfig().getStringList("exempt")) {
-    		if(name.equalsIgnoreCase(ex))
+    		if(ex.toLowerCase().startsWith(name.toLowerCase())){
     			return true;
+    		}
         }
     	return false;
     }
@@ -804,5 +812,29 @@ public class Utils {
     	}
     	l = l.toLowerCase().trim();
 		return l;
+    }
+    public static void scheduler() {
+        if (!plugin.getConfig().getString("timer.message").isEmpty())
+        	Bukkit.getServer().broadcastMessage(plugin.getConfig().getString("timer.message").replaceAll("&(?=[0-9a-fA-FkKmMoOlLnNrR])", "\u00a7"));
+    	Plugin[] plugins = pm.getPlugins();
+    	if(plugin.getConfig().getBoolean("timer.all")) {
+	        for(Plugin pl : plugins) {
+	            if(!pl.getName().toLowerCase().startsWith("reloader") && !(Utils.exempt(pl.getName()))) {
+	                Utils.unload(pl.getName());
+	                Utils.load(pl.getName());
+	            }
+	        }
+    	} else {
+    		for (String li : plugin.getConfig().getStringList("timer.list")) {
+    			for (Plugin pl : pm.getPlugins()) {
+    				if (pl.getName().toLowerCase().startsWith(li.toLowerCase()) && !exempt(pl.getName())) {
+    	                Utils.unload(pl.getName());
+    	                Utils.load(pl.getName());
+    				}
+    			}
+    		}
+    		
+    		
+    	}
     }
 }
