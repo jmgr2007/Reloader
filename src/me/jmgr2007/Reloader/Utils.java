@@ -16,6 +16,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.permissions.Permission;
@@ -30,6 +32,8 @@ import org.bukkit.plugin.UnknownDependencyException;
 public class Utils {
 	private static PluginManager pm = Bukkit.getServer().getPluginManager();
 	private static boolean canceled;
+	protected static FileConfiguration customConfig = null;
+	protected static File customConfigFile = null;
 	private static Plugin plugin = pm.getPlugin("Reloader");
 	
 	public Utils(String name, CommandSender sender) {
@@ -822,5 +826,13 @@ public class Utils {
     		
     		
     	}
+    }
+    public static void localize(String lang) {
+    	if (customConfigFile.exists())
+    		customConfigFile.delete();
+    	plugin.saveResource("locale.yml", true);
+    	customConfig = YamlConfiguration.loadConfiguration(customConfigFile);
+    	plugin.getServer().broadcastMessage(customConfig.getString("test"));
+    	
     }
 }

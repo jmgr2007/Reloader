@@ -35,13 +35,12 @@ public class ReloaderListener implements CommandExecutor {
                             }, (((plugin.getConfig().getLong("timer.hours")*60*60) + (plugin.getConfig().getLong("timer.minutes")*60) + plugin.getConfig().getLong("timer.seconds")) * 20), (((plugin.getConfig().getLong("timer.hours")*60*60) + (plugin.getConfig().getLong("timer.minutes")*60) + plugin.getConfig().getLong("timer.seconds")) * 20));
                         }
                 	} else {
-                		args[1] = plugin.getName();
                         for(Plugin pl : plugins) {
                         	if(pl.getName().toLowerCase().startsWith(Utils.join(args).toLowerCase()))
                         		pl.reloadConfig();
                         }
                    	}
-                	Utils.msg(sender, ChatColor.GREEN +"Config reloaded");
+                	Utils.msg(sender, ChatColor.GREEN + "Config reloaded");
                 } else if (args[0].equalsIgnoreCase("reload")) {
                 	if(args.length > 1) { 
 	                    if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
@@ -59,7 +58,7 @@ public class ReloaderListener implements CommandExecutor {
 	                    	Utils.hReload();
 	                    } else {
 	                    	if (!Utils.exempt(Utils.join(args))) {
-		                        Plugin[] plugins = plugin.getServer().getPluginManager().getPlugins();
+		                        Plugin[] plugins = this.plugins;
 		                        for(int i = 0; i < plugins.length; i++) {
 		                            if(plugins[i].getName().equalsIgnoreCase(Utils.join(args))) {
 										Utils.unload(plugins[i].getName());

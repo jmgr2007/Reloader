@@ -6,6 +6,8 @@ pl: true
 default-pl: false
 # If this or the message under timer are left blank then there will be no message
 reload: '&2[Reloader] &cReloading all plugins'
+# If this is set to true then the plugin will check if there is a newer version of reloader available.
+check: true
 # Automatic reloader configuration, if all is set to true it will automatically 
 # reload all plugins and if it is false then it will only reload the plugins on its list
 timer:

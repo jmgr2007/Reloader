@@ -2,6 +2,9 @@ package me.jmgr2007.Reloader;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Scanner;
 import java.util.logging.Logger;
 
 import me.jmgr2007.Reloader.Metrics.Plotter;
@@ -23,6 +26,8 @@ public class Reloader extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(pl, this);
         initialConfigCheck();
+        if(this.getConfig().getBoolean("check"))
+        	versionCheck();
         try {
             startMetrics();
         } catch (IOException e1) {
@@ -42,11 +47,52 @@ public class Reloader extends JavaPlugin {
 
     }
     
+    private void versionCheck() {
+		int v = Integer.parseInt(this.getDescription().getVersion().replaceAll("[.]", ""));
+		URL url = null;
+		try {
+			url = new URL("https://api.curseforge.com/servermods/files?projectIds=40397");
+		} catch (MalformedURLException e) {
+			return;
+		}
+		Scanner s = null;
+		try {
+			s = new Scanner(url.openStream());
+		} catch (IOException e) {
+			return;
+		}
+		if (url != null && s != null) {
+			String j = ""; 
+			if (s.hasNextLine()) {
+				j = s.nextLine();
+			}
+			s.close();
+			if (!j.equals("")) {
+				String[] t = j.replace("[", "").replace("]", "").replaceAll("\\}\\,\\{", "};{").replaceAll("\\{","").replaceAll("\\}", "").split(";");
+				t = t[t.length-1].split(",");
+				j = t[t.length-3].substring(7).replaceAll("\"", "").replaceAll("[A-Za-z. ]", "");
+				if (!j.equals("")) {
+					int c = Integer.parseInt(j);
+					if (v < c) {
+						this.getLogger().info("[Reloader] There is a new version of Reloader available at " + t[t.length-8].substring(14).replaceAll("\"", "").replaceAll("\\\\", ""));
+					}
+				}
+			}
+		}
+		return;
+    }
+    
     private void initialConfigCheck(){
         getConfig().options().copyDefaults(true);
         if(!(new File(this.getDataFolder(),"config.yml").exists())){
             this.getLogger().info("Saving default configuration file.");
             this.saveDefaultConfig();
+        }
+        if(Utils.customConfigFile == null)
+        	Utils.customConfigFile = new File (getDataFolder(),"locale.yml");
+        if(!(Utils.customConfigFile.exists())){
+        	this.getLogger().info("Saving default (english) localization file.");
+        	Utils.localize("english");
         }
     }
 
