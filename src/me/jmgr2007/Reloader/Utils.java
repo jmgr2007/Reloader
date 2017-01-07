@@ -48,7 +48,7 @@ public class Utils {
         boolean there = false;
         
         for(Plugin pl : pm.getPlugins())
-        	if(pl.getName().toLowerCase().startsWith(pluginName))
+        	if(pl.getName().toLowerCase().startsWith(pluginName.toLowerCase()))
         		there = true;
         
         if(there) {
@@ -106,7 +106,7 @@ public class Utils {
         boolean there = false;
         
         for(Plugin pl : pm.getPlugins())
-        	if(pl.getName().toLowerCase().startsWith(pluginName))
+        	if(pl.getName().toLowerCase().startsWith(pluginName.toLowerCase()))
         		there = true;
         
         if(there) {
@@ -166,7 +166,7 @@ public class Utils {
         boolean there = false;
         
         for(Plugin pl : pm.getPlugins())
-        	if(pl.getName().toLowerCase().startsWith(pluginName))
+        	if(pl.getName().toLowerCase().startsWith(pluginName.toLowerCase()))
         		there = true;
         
         if(there) {
@@ -521,7 +521,7 @@ public class Utils {
 	public static void use(String plugin, CommandSender sender) {
         Plugin plug = null;
         if (plugin.trim() == "")
-        	plugin = "Reloader";
+        	plugin = Utils.plugin.getName();
         Plugin [] plugins = pm.getPlugins();
         for(Plugin pl : plugins) {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
@@ -783,7 +783,7 @@ public class Utils {
     }
     
     public static boolean exempt(String name) {
-    	for(String ex : Bukkit.getPluginManager().getPlugin("Reloader").getConfig().getStringList("exempt")) {
+    	for(String ex : plugin.getConfig().getStringList("exempt")) {
     		if(ex.toLowerCase().startsWith(name.toLowerCase())){
     			return true;
     		}
@@ -805,7 +805,7 @@ public class Utils {
     	Plugin[] plugins = pm.getPlugins();
     	if(plugin.getConfig().getBoolean("timer.all")) {
 	        for(Plugin pl : plugins) {
-	            if(!pl.getName().toLowerCase().startsWith("reloader") && !(Utils.exempt(pl.getName()))) {
+	            if(!pl.getName().toLowerCase().startsWith(plugin.getName().toLowerCase()) && !(Utils.exempt(pl.getName()))) {
 	                Utils.unload(pl.getName());
 	                Utils.load(pl.getName());
 	            }

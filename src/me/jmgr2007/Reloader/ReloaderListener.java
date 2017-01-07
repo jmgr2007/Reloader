@@ -37,7 +37,7 @@ public class ReloaderListener implements CommandExecutor {
                 	} else {
                 		args[1] = plugin.getName();
                         for(Plugin pl : plugins) {
-                        	if(pl.getName().toLowerCase().startsWith(Utils.join(args)))
+                        	if(pl.getName().toLowerCase().startsWith(Utils.join(args).toLowerCase()))
                         		pl.reloadConfig();
                         }
                    	}
@@ -80,7 +80,7 @@ public class ReloaderListener implements CommandExecutor {
                         if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
                         	Utils.msg(sender, ChatColor.RED + "Disabling all non-exempt plugins");
                             for(Plugin pl : plugins) {
-                            	if(!Utils.exempt(pl.getName()) && !pl.getName().toLowerCase().startsWith("reloader".toLowerCase())) {
+                            	if(!Utils.exempt(pl.getName()) && !pl.getName().toLowerCase().startsWith(plugin.getName().toLowerCase())) {
                             		utilz(pl.getName());
                             		Utils.disable(pl.getName(), sender);
                             		Vars.disabled.increment();
