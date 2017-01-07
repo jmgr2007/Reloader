@@ -91,8 +91,6 @@ public class Utils {
 	        		try {
 						if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
 						    pm.enablePlugin(pl);
-						    Vars.loaded.increment();
-						    Vars.enabled.increment();
 						}
 					} catch (InvalidDescriptionException e) {
 						e.printStackTrace();
@@ -150,8 +148,6 @@ public class Utils {
 	        		try {
 						if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
 						    pm.enablePlugin(pl);
-						    Vars.loaded.increment();
-						    Vars.enabled.increment();
 						}
 					} catch (InvalidDescriptionException e) {
 						e.printStackTrace();
@@ -213,8 +209,6 @@ public class Utils {
 	        		try {
 						if(pl.getName().equalsIgnoreCase(plugin.getPluginLoader().getPluginDescription(compare).getName())) {
 						    pm.enablePlugin(pl);
-						    Vars.loaded.increment();
-						    Vars.enabled.increment();
 						}
 					} catch (InvalidDescriptionException e) {
 						e.printStackTrace();
@@ -289,8 +283,6 @@ public class Utils {
                 pm.disablePlugin(pl);
                 if (plugins != null && plugins.contains(pl)) {
                     plugins.remove(pl);
-                    Vars.unloaded.increment();
-                    Vars.disabled.increment();
                 }
 
                 if (lookupNames != null && lookupNames.containsKey(pl.getName())) {
@@ -407,8 +399,6 @@ public class Utils {
                 pm.disablePlugin(pl);
                 if (plugins != null && plugins.contains(pl)) {
                     plugins.remove(pl);
-                    Vars.unloaded.increment();
-                    Vars.disabled.increment();
                 }
 
                 if (lookupNames != null && lookupNames.containsKey(pl.getName())) {
@@ -470,7 +460,6 @@ public class Utils {
     	for(Plugin pl : plugins) {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 pm.disablePlugin(pl);
-                Vars.disabled.increment();
             }
         }
         return;
@@ -486,7 +475,6 @@ public class Utils {
     	for(Plugin pl : plugins) {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 pm.disablePlugin(pl);
-                Vars.disabled.increment();
                 h = true;
             }
         }
@@ -507,7 +495,6 @@ public class Utils {
         for(Plugin pl : plugins) {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 pm.enablePlugin(pl);
-                Vars.enabled.increment();
             }
         }
         return;
@@ -519,7 +506,6 @@ public class Utils {
         for(Plugin pl : plugins) {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 pm.enablePlugin(pl);
-                Vars.enabled.increment();
                 h = true;
             }
         }

@@ -1,5 +1,6 @@
 package me.jmgr2007.Reloader;
 
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -46,25 +47,25 @@ public class ReloaderListener implements CommandExecutor {
 	                    if (args[1].equalsIgnoreCase("all") || args[1].equalsIgnoreCase("*")) {
 	                    	if(!plugin.getConfig().getString("reload").trim().isEmpty())
 	                        	plugin.getServer().broadcastMessage(plugin.getConfig().getString("reload").replaceAll("&(?=[0-9a-fA-FkKmMoOlLnNrR])", "\u00a7"));
-	                        Vars.reloaded.add(plugins.length);
 	                        for(Plugin pl : plugins) {
 	                            if(!pl.getName().toLowerCase().startsWith(plugin.getName().toLowerCase()) && !(Utils.exempt(pl.getName()))) {
 	                            	utilz(pl.getName());
 	                                Utils.unload(pl.getName());
 	                                Utils.load(pl.getName());
+	                                Vars.reloaded.increment();
 	                            }
 	                        }
 	                    } else if(args[1].equalsIgnoreCase("harsh")) {
 	                    	Utils.hReload();
 	                    } else {
 	                    	if (!Utils.exempt(Utils.join(args))) {
-		                        Vars.reloaded.increment();
 		                        Plugin[] plugins = plugin.getServer().getPluginManager().getPlugins();
 		                        for(int i = 0; i < plugins.length; i++) {
 		                            if(plugins[i].getName().equalsIgnoreCase(Utils.join(args))) {
 										Utils.unload(plugins[i].getName());
 		                                Utils.load(plugins[i].getName());
 		                                Utils.msg(sender, ChatColor.GREEN + "Plugin reloaded");
+		                                Vars.reloaded.increment();
 		                            }
 		                        }
 	                    	} else {
@@ -82,11 +83,13 @@ public class ReloaderListener implements CommandExecutor {
                             	if(!Utils.exempt(pl.getName()) && !pl.getName().toLowerCase().startsWith("reloader".toLowerCase())) {
                             		utilz(pl.getName());
                             		Utils.disable(pl.getName(), sender);
+                            		Vars.disabled.increment();
                             	}
                             }
                         } else {
                         	util(Utils.join(args), sender);
                         	Utils.disable(Utils.join(args), sender);
+                    		Vars.disabled.increment();
                         }
                     } else {
                     	Utils.msg(sender, ChatColor.RED + "You must state what you wish to disable");
@@ -100,6 +103,7 @@ public class ReloaderListener implements CommandExecutor {
                             Utils.msg(sender, ChatColor.GREEN + "Enabling all plugins");
                         } else {
                         	Utils.enable(Utils.join(args), sender);
+                        	Vars.enabled.increment();
                         }
                     } else {
                     	Utils.msg(sender, ChatColor.RED + "You must state what you with to enable");
@@ -107,12 +111,14 @@ public class ReloaderListener implements CommandExecutor {
                 } else if (args[0].equalsIgnoreCase("load")) {
                 	if (args.length > 1) {
                         Utils.load(Utils.join(args), sender);
+                        Vars.loaded.increment();
                 	} else 
                 		Utils.msg(sender, ChatColor.RED + "You must state what you would like to load");
                 } else if (args[0].equalsIgnoreCase("unload")) {
                 	if (args.length > 1) {
 	                    utilz(Utils.join(args));
 	                	Utils.unload(Utils.join(args), sender);
+	                	Vars.unloaded.increment();
                 	} else 
                 		Utils.msg(sender, ChatColor.RED + "You must state what you would like to unload");
                 } else if (args[0].equalsIgnoreCase("check")) {
@@ -140,7 +146,6 @@ public class ReloaderListener implements CommandExecutor {
 	            	return Utils.list(sender);
 	            } else {
 	            		Utils.msg(sender, ChatColor.RED + "Invalid Args");
-	            		Utils.msg(sender, "Disabled: " + Vars.disabled.getValue() + " Enabled: " + Vars.enabled.getValue() + " Loaded: " + Vars.loaded.getValue() + " UnLoaded: " + Vars.unloaded.getValue() + " ReLoaded: " + Vars.reloaded.getValue());
 	                    return true;
 	            }
             }
