@@ -11,6 +11,7 @@ import me.jmgr2007.Reloader.Metrics.Plotter;
 import me.jmgr2007.Reloader.Metrics.Graph;
 
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,19 +20,19 @@ public class Reloader extends JavaPlugin {
     private final Pl pl = new Pl(); 
     
     public void onEnable() {
-        Logger log = this.getServer().getLogger();
-        log.info("[Reloader] Passing Reloader command to command handler");
+        initialConfigCheck();
+        Logger log = this.getLogger();
+        log.info(Utils.string("reloader"));
         this.getCommand("reloader").setExecutor(CE);
-        log.info("[Reloader] Passing Plugin command to command listener");
+        log.info(Utils.string("plugin"));
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(pl, this);
-        initialConfigCheck();
         if(this.getConfig().getBoolean("check"))
         	versionCheck();
         try {
             startMetrics();
         } catch (IOException e1) {
-            log.severe("[Reloader] Metrics was unable to start");
+            log.severe(Utils.string("metricsError"));
         }
         if(this.getConfig().getBoolean("timer.autoreload")) {
             this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -74,7 +75,7 @@ public class Reloader extends JavaPlugin {
 				if (!j.equals("")) {
 					int c = Integer.parseInt(j);
 					if (v < c) {
-						this.getLogger().info("[Reloader] There is a new version of Reloader available at " + t[t.length-8].substring(14).replaceAll("\"", "").replaceAll("\\\\", ""));
+						this.getLogger().info(Utils.string("update").replaceAll("%URL%", t[t.length-8].substring(14).replaceAll("\"", "").replaceAll("\\\\", "")));
 					}
 				}
 			}
@@ -83,16 +84,17 @@ public class Reloader extends JavaPlugin {
     }
     
     private void initialConfigCheck(){
+        if(Utils.localeFile == null)
+        	Utils.localeFile = new File (getDataFolder(),"locale.yml");
+        if(!(Utils.localeFile.exists())){
+        	Utils.localize();
+        	this.getLogger().info(Utils.string("defaultLocale"));
+        } else
+        	Utils.locale = YamlConfiguration.loadConfiguration(Utils.localeFile);
         getConfig().options().copyDefaults(true);
         if(!(new File(this.getDataFolder(),"config.yml").exists())){
-            this.getLogger().info("Saving default configuration file.");
+            this.getLogger().info(Utils.string("defaultConfig"));
             this.saveDefaultConfig();
-        }
-        if(Utils.customConfigFile == null)
-        	Utils.customConfigFile = new File (getDataFolder(),"locale.yml");
-        if(!(Utils.customConfigFile.exists())){
-        	this.getLogger().info("Saving default (english) localization file.");
-        	Utils.localize("english");
         }
     }
 

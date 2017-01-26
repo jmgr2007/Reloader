@@ -1,6 +1,7 @@
 package me.jmgr2007.Reloader;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +17,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -32,13 +34,14 @@ import org.bukkit.plugin.UnknownDependencyException;
 public class Utils {
 	private static PluginManager pm = Bukkit.getServer().getPluginManager();
 	private static boolean canceled;
-	protected static FileConfiguration customConfig = null;
-	protected static File customConfigFile = null;
+	public static String canceledPl = "";
+	protected static FileConfiguration locale = null;
+	protected static File localeFile = null;
 	private static Plugin plugin = pm.getPlugin("Reloader");
 	
 	public Utils(String name, CommandSender sender) {
 		if(exempt(name))
-			msg(sender, ChatColor.RED + "This plugin is exempt");
+			msg(sender, string("exempt", canceledPl));
 		canceled = exempt(name);
 	}
 
@@ -47,180 +50,164 @@ public class Utils {
 	}
 
     public static void load(final String pluginName) {
+        for(Plugin pl : pm.getPlugins()) {
+        	if(pl.getName().toLowerCase().startsWith(pluginName.toLowerCase())) {
+        		plugin.getLogger().info(string("loaded", pl.getName()));
+        		return;
+        	}
+        }
         
-        
-        boolean there = false;
-        
-        for(Plugin pl : pm.getPlugins())
-        	if(pl.getName().toLowerCase().startsWith(pluginName.toLowerCase()))
-        		there = true;
-        
-        if(there) {
-        	System.out.print("Plugin already loaded");
-        	return;
-        } else {
-	        String name = "";
-	        String path = plugin.getDataFolder().getParent();
-	        File folder = new File(path);
-	        ArrayList<File> files = new ArrayList<File>();
-	        File[] listOfFiles = folder.listFiles();
-	        for (File compare : listOfFiles) {
-	            if (compare.isFile()) {
-	            	try {
-						name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
+        String name = "";
+        String path = plugin.getDataFolder().getParent();
+        File folder = new File(path);
+        ArrayList<File> files = new ArrayList<File>();
+        File[] listOfFiles = folder.listFiles();
+        for (File compare : listOfFiles) {
+            if (compare.isFile()) {
+            	try {
+					name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
+				} catch (InvalidDescriptionException e) {
+					plugin.getLogger().info(string("ErrorA", compare.getName()));
+				}
+            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
+            		files.add(compare);
+            		try {
+						pm.loadPlugin(compare);
+					} catch (UnknownDependencyException e) {
+						plugin.getLogger().info(string("ErrorC", compare.getName()));
+						return;
+					} catch (InvalidPluginException e) {
+						plugin.getLogger().info(string("ErrorB", compare.getName()));
+						return;
 					} catch (InvalidDescriptionException e) {
-						System.out.print(compare.getName() + "didn't match");
+						plugin.getLogger().info(string("ErrorA", compare.getName()));
+						return;
 					}
-	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
-	            		files.add(compare);
-	            		try {
-							pm.loadPlugin(compare);
-						} catch (UnknownDependencyException e) {
-							System.out.print(compare.getName() + "is missing a dependant plugin");
-							return;
-						} catch (InvalidPluginException e) {
-							System.out.print(compare.getName() + "is not a plugin");
-							return;
-						} catch (InvalidDescriptionException e) {
-							System.out.print(compare.getName() + "has an incorrect description");
-							return;
-						}
-	            	}
-	            }
-	        }
-	        
-	        Plugin[] plugins = pm.getPlugins();
-	        for(Plugin pl : plugins) {
-	        	for(File compare : files) {
-	        		try {
-						if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
-						    pm.enablePlugin(pl);
-						}
-					} catch (InvalidDescriptionException e) {
-						e.printStackTrace();
+            	}
+            }
+        }
+        
+        Plugin[] plugins = pm.getPlugins();
+        for(Plugin pl : plugins) {
+        	for(File compare : files) {
+        		try {
+					if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
+					    pm.enablePlugin(pl);
 					}
-	        	}
-	        }
+				} catch (InvalidDescriptionException e) {
+					e.printStackTrace();
+				}
+        	}
         }
         return;
     }
 
     public static void load(final String pluginName, CommandSender sender) {
         
-        boolean there = false;
-        
-        for(Plugin pl : pm.getPlugins())
-        	if(pl.getName().toLowerCase().startsWith(pluginName.toLowerCase()))
-        		there = true;
-        
-        if(there) {
-        	msg(sender, ChatColor.RED + "Plugin already loaded");
-        	return;
-        } else {
-	        String name = "";
-	        ArrayList<File> files = new ArrayList<File>();
-	        File[] listOfFiles = new File(ReloaderListener.plugin.getDataFolder().getParent()).listFiles();
-	        for (File compare : listOfFiles) {
-	            if (compare.isFile() && compare.getName().toLowerCase().endsWith(".jar")) {
-	            	try {
-						name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
-					} catch (InvalidDescriptionException e) {
-						msg(sender, ChatColor.RED + compare.getName() + " has an incorect description");
-						return;
-					}
-	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
-	            		files.add(compare);
-	            		try {
-							pm.loadPlugin(compare);
-						} catch (UnknownDependencyException e) {
-							msg(sender, ChatColor.RED + compare.getName() + " is missing a dependant plugin");
-							return;
-						} catch (InvalidPluginException e) {
-							msg(sender, ChatColor.RED + compare.getName() + " is not a plugin");
-							return;
-						} catch (InvalidDescriptionException e) {
-							msg(sender, ChatColor.RED + compare.getName() + " has an incorrect description");
-							return;
-						}
-	            	}
-	            }
-	        }
-	        
-	        Plugin[] plugins = pm.getPlugins();
-	        for(Plugin pl : plugins) {
-	        	for(File compare : files) {
-	        		try {
-						if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
-						    pm.enablePlugin(pl);
-						}
-					} catch (InvalidDescriptionException e) {
-						e.printStackTrace();
-						msg(sender, "");
-						return;
-					}
-	        	}
-	        }
+        for(Plugin pl : pm.getPlugins()) {
+        	if(pl.getName().toLowerCase().startsWith(pluginName.toLowerCase())) {
+        		msg(sender, pl.getName());
+        		msg(sender, pluginName);
+        		msg(sender, string("loaded", pl.getName()));
+        		return;
+        	}
         }
-        msg(sender, ChatColor.GREEN + "Plugin loaded and enabled");
+        String name = "";
+        ArrayList<File> files = new ArrayList<File>();
+        File[] listOfFiles = new File(ReloaderListener.plugin.getDataFolder().getParent()).listFiles();
+        for (File compare : listOfFiles) {
+            if (compare.isFile() && compare.getName().toLowerCase().endsWith(".jar")) {
+            	try {
+					name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
+				} catch (InvalidDescriptionException e) {
+					msg(sender, string("ErrorA", compare.getName()));
+					return;
+				}
+            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
+            		files.add(compare);
+            		try {
+						pm.loadPlugin(compare);
+					} catch (UnknownDependencyException e) {
+						msg(sender, string("ErrorC", compare.getName()));
+						return;
+					} catch (InvalidPluginException e) {
+						msg(sender, string("ErrorB", compare.getName()));
+						return;
+					} catch (InvalidDescriptionException e) {
+						msg(sender, string("ErrorA", compare.getName()));
+						return;
+					}
+            	}
+            }
+        }
+        
+        Plugin[] plugins = pm.getPlugins();
+        for(Plugin pl : plugins) {
+        	for(File compare : files) {
+        		try {
+					if(pl.getName().equalsIgnoreCase(ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName())) {
+					    pm.enablePlugin(pl);
+				        msg(sender, string("load", pl.getName()));
+					}
+				} catch (InvalidDescriptionException e) {
+					e.printStackTrace();
+					msg(sender, "");
+					return;
+				}
+        	}
+        }
         return;
     }
       
-    public static void fload(final String pluginName, CommandSender sender) {
-        
-        boolean there = false;
-        
+    public static void fload(final String pluginName, CommandSender sender) {        
         for(Plugin pl : pm.getPlugins())
-        	if(pl.getName().toLowerCase().startsWith(pluginName.toLowerCase()))
-        		there = true;
+        	if(pl.getName().toLowerCase().startsWith(pluginName.toLowerCase())) {
+            	msg(sender, string("loaded", pl.getName()));
+            	return;
+        	}
         
-        if(there) {
-        	msg(sender, ChatColor.RED + "Plugin already loaded");
-        	return;
-        } else {
-	        String name = "";
-	        ArrayList<File> files = new ArrayList<File>();
-	        File[] listOfFiles = new File(ReloaderListener.plugin.getDataFolder().getParent()).listFiles();
-		    for (File compare : listOfFiles) {
-	            if (compare.isFile() && compare.getName().toLowerCase().endsWith(".jar")) {
-	            	try {
-						ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare);
+        String name = "";
+        ArrayList<File> files = new ArrayList<File>();
+        File[] listOfFiles = new File(ReloaderListener.plugin.getDataFolder().getParent()).listFiles();
+        for (File compare : listOfFiles) {
+            if (compare.isFile() && compare.getName().toLowerCase().endsWith(".jar")) {
+            	try {
+					name = ReloaderListener.plugin.getPluginLoader().getPluginDescription(compare).getName();
+				} catch (InvalidDescriptionException e) {
+					msg(sender, string("ErrorA", compare.getName()));
+					return;
+				}
+            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
+            		files.add(compare);
+            		try {
+						pm.loadPlugin(compare);
+					} catch (UnknownDependencyException e) {
+						msg(sender, string("ErrorC", compare.getName()));
+						return;
+					} catch (InvalidPluginException e) {
+						msg(sender, string("ErrorB", compare.getName()));
+						return;
 					} catch (InvalidDescriptionException e) {
-						msg(sender, ChatColor.RED + compare.getName() + " has an incorect description");
+						msg(sender, string("ErrorA", compare.getName()));
 						return;
 					}
-	            	name = compare.getName();
-	            	if(name.toLowerCase().startsWith(pluginName.toLowerCase())) {
-	            		files.add(compare);
-	            		try {
-							pm.loadPlugin(compare);
-						} catch (UnknownDependencyException e) {
-							msg(sender, ChatColor.RED + compare.getName() + " is missing a dependant plugin");
-							return;
-						} catch (InvalidPluginException e) {
-							msg(sender, ChatColor.RED + compare.getName() + " is not a plugin");
-							return;
-						} catch (InvalidDescriptionException e) {
-							msg(sender, ChatColor.RED + compare.getName() + " has an incorrect description");
-							return;
-						}
-	            	}
-	            }
-		    }
-	        
-	        Plugin[] plugins = pm.getPlugins();
-	        for(Plugin pl : plugins) {
-	        	for(File compare : files) {
-	        		try {
-						if(pl.getName().equalsIgnoreCase(plugin.getPluginLoader().getPluginDescription(compare).getName())) {
-						    pm.enablePlugin(pl);
-						}
-					} catch (InvalidDescriptionException e) {
-						e.printStackTrace();
-						msg(sender, "");
-						return;
+            	}
+            }
+        }
+        
+        Plugin[] plugins = pm.getPlugins();
+        for(Plugin pl : plugins) {
+        	for(File compare : files) {
+        		try {
+					if(pl.getName().equalsIgnoreCase(plugin.getPluginLoader().getPluginDescription(compare).getName())) {
+					    pm.enablePlugin(pl);
 					}
-	        	}
-	        }
+				} catch (InvalidDescriptionException e) {
+					e.printStackTrace();
+					msg(sender, "");
+					return;
+				}
+        	}
         }
     }
 
@@ -281,8 +268,6 @@ public class Utils {
         boolean in = false;
 
         for (Plugin pl : pm.getPlugins()) {
-        	if(in)
-        		break;
             if (pl.getName().toLowerCase().startsWith(pluginName.toLowerCase())) {
                 pm.disablePlugin(pl);
                 if (plugins != null && plugins.contains(pl)) {
@@ -328,11 +313,12 @@ public class Utils {
 				        }
 			        }
 			    }
-			    in = true;
+			    in=true;
+			    break;
 		    }
 	    }
         if(!in) {
-        	Bukkit.getLogger().info("Not an existing plugin");
+        	Bukkit.getLogger().info(string("ErrorD", pluginName));
         }
         System.gc();
         return;
@@ -342,7 +328,6 @@ public class Utils {
     public static void unload(String pluginName, CommandSender sender) {
     	
     	if(canceled) {
-    		msg(sender, ChatColor.RED + "This plugin cannot be unloaded");
     		return;
     	}
     	
@@ -397,8 +382,6 @@ public class Utils {
         boolean in = false;
 
         for (Plugin pl : pm.getPlugins()) {
-        	if(in)
-        		break;
             if (pl.getName().toLowerCase().startsWith(pluginName.toLowerCase())) {
                 pm.disablePlugin(pl);
                 if (plugins != null && plugins.contains(pl)) {
@@ -445,13 +428,14 @@ public class Utils {
 			        }
 			    }
 			    in = true;
+	            msg(sender, string("unload", pl.getName()));
+			    break;
 		    }
 	    }
         if(!in) {
-        	msg(sender, ChatColor.RED + "Not an existing plugin");
+        	msg(sender, string("ErrorD", pluginName));
         }
         if(in) {
-            msg(sender, ChatColor.GREEN + "Plugin unloaded and disabled");
         }
         System.gc();
         return;
@@ -471,7 +455,6 @@ public class Utils {
 
     public static void disable(String plugin, CommandSender sender) {
     	if(canceled) {
-    		msg(sender, ChatColor.RED + "This plugin cannot be disabled");
     		return;
     	}
     	boolean h = false;
@@ -480,13 +463,13 @@ public class Utils {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 pm.disablePlugin(pl);
                 h = true;
+            	msg(sender, string("disable", pl.getName()));
             }
         }
     	if(!h) {
-    		msg(sender, ChatColor.GREEN + "Plugin couldn't be disabled");
+    		msg(sender, string("disableError", plugin));
     		return;
     	}
-    	msg(sender, ChatColor.GREEN + "Plugin disabled");
         return;
     }
 
@@ -511,14 +494,14 @@ public class Utils {
             if(pl.getName().toLowerCase().startsWith(plugin.toLowerCase())) {
                 pm.enablePlugin(pl);
                 h = true;
+                msg(sender, string("enable",pl.getName()));
+                return;
             }
         }
         if(!h) {
-        	msg(sender, ChatColor.RED + "Plugin couldn't be enabled");
+        	msg(sender, string("enableError", plugin));
         	return;
         }
-        msg(sender, ChatColor.GREEN + "Plugin enabled");
-        return;
     }
 
     @SuppressWarnings("rawtypes")
@@ -533,7 +516,7 @@ public class Utils {
             }
         }
         if(plug == null) {
-        	msg(sender, ChatColor.RED + "Plugin couldn't be found");
+        	msg(sender, string("notFound", plugin));
         	return;
         }
         ArrayList<String> out = new ArrayList<String>();
@@ -599,7 +582,7 @@ public class Utils {
         if (plugin == "")
         	plug = Utils.plugin;
         if(plug == null) {
-        	msg(sender, ChatColor.RED + "Plugin couldn't be found");
+        	msg(sender, string("notFound", plugin));
         	return;
         }
         
@@ -650,34 +633,42 @@ public class Utils {
         }
         if(plug != null) {
             if(plug.isEnabled()) {
-                msg(sender, ChatColor.GREEN + plug.getName() + " is enabled");
+                msg(sender, string("enabled",plug.getName()));
             } else {
-                msg(sender, ChatColor.RED + plug.getName() + " Is disabled");
+                msg(sender, string("disabled", plug.getName()));
             }
             return true;
         } else {
-            msg(sender, "This is not a plugin loaded on plugin server");
+            msg(sender, string("notFound", plugin));
             return true;
         }
     }
 
     public static boolean perm(CommandSender sender, String permission) {
+    	if(pm.getPermission(permission) == null) {
+    		msg(sender, string("permNotFound", permission));
+    		return true;
+    	}
         if(sender.hasPermission(permission)) {
-            msg(sender, ChatColor.GREEN + "You have permission " + permission);
+            msg(sender, string("senderPerm", permission));
         } else {
-            msg(sender, ChatColor.RED + "You don't have permission " + permission);
+            msg(sender, string("senderNoPerm", permission));
         }
         return true;
     }
     
     @SuppressWarnings("deprecation")
 	public static boolean perm(String player, CommandSender sender, String permission) {
+    	if(pm.getPermission(permission) == null) {
+    		msg(sender, string("permNotFound", permission));
+    		return true;
+    	}
     	if(Bukkit.getServer().getPlayer(player) != null) {
             Player target = Bukkit.getServer().getPlayer(player);
 	        if(target.hasPermission(permission)) {
-	            msg(sender, ChatColor.GREEN + target.getName() + " has permission " + permission);
+	            msg(sender, string("userPerm", permission).replaceAll("%USER%", player));
 	        } else {
-	            msg(sender, ChatColor.RED + target.getName() + " doesn't have permission " + permission);
+	            msg(sender, string("userNoPerm", permission).replaceAll("%USER%", player));
 	        }
     	}
         return true;
@@ -763,32 +754,38 @@ public class Utils {
     }
     
     public static boolean help(CommandSender sender) {
-    	msg(sender, "§6----------- §cReloader help §6-----------");
-    	msg(sender, "§4/reloader reload <Plugin|all|*|harsh> §6-- §cReload <Plugin>/reload all plugins in the server/reload plugins and load new ones");
-    	msg(sender, "§4/reloader disable <Plugin|all|*> §6-- §cDisable <Plugin>");
-    	msg(sender, "§4/reloader enable <Plugin|all|*> §6-- §cEnable <Plugin>");
-    	msg(sender, "§4/reloader load <File> §6-- §cLoad <File>");
-    	msg(sender, "§4/reloader unload <File> §6-- §cUn-Load <File>");
-    	msg(sender, "§4/reloader check <Plugin> §6-- §cCheck whether or not <Plugin> is enabled");
-    	msg(sender, "§4/reloader info <Plugin> §6-- §cGives info on <Plugin>");
-    	msg(sender, "§4/reloader use <Plugin> §6-- §cGives info on how to use <Plugin>");
-    	msg(sender, "§4/reloader perm [Player] <Permission> §6-- §cTells you if you or [Player] has <Permission>");
-    	msg(sender, "§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled");
-    	msg(sender, "§4/reloader list -v §6-- §cAdds versions to the plugin list");
-    	msg(sender, "§4/reloader config [plugin] §6-- §cReload [plugin]'s config or leave blank to reload Reloader's config");
-        return true;
-    }
-    
-    public static boolean aHelp(CommandSender sender) {
-    	msg(sender, "§6----------- §cReloader help §6-----------");
-    	msg(sender, "§4/reloader list §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled");
-    	msg(sender, "§4/reloader list -v §6-- §cList plugins in alphabetical order and sorts them by enabled or disabled with version included");
+    	msg(sender, string("helpHead"));
+    	if(permCheck(sender, "reloader.reload"))
+    		msg(sender, string("helpReload"));
+    	if(permCheck(sender, "reloader.disable"))
+    		msg(sender, string("helpDisable"));
+    	if(permCheck(sender, "reloader.enable"))
+    		msg(sender, string("helpEnable"));
+    	if(permCheck(sender, "reloader.load"))
+    		msg(sender, string("helpLoad"));
+    	if(permCheck(sender, "reloader.unload"))
+    		msg(sender, string("helpUnload"));
+    	if(permCheck(sender, "reloader.check"))
+    		msg(sender, string("helpCheck"));
+    	if(permCheck(sender, "reloader.info"))
+    		msg(sender, string("helpInfo"));
+    	if(permCheck(sender, "reloader.use"))
+    		msg(sender, string("helpUse"));
+    	if(permCheck(sender, "reloader.perm"))
+    		msg(sender, string("helpPerm"));
+    	if(permCheck(sender, "reloader.list"))
+    		msg(sender, string("helpList"));
+    	if(permCheck(sender, "reloader.list"))
+    		msg(sender, string("helpListV"));
+    	if(permCheck(sender, "reloader.config"))
+    		msg(sender, string("helpConfig"));
         return true;
     }
     
     public static boolean exempt(String name) {
     	for(String ex : plugin.getConfig().getStringList("exempt")) {
     		if(ex.toLowerCase().startsWith(name.toLowerCase())){
+    			canceledPl = ex;
     			return true;
     		}
         }
@@ -827,12 +824,32 @@ public class Utils {
     		
     	}
     }
-    public static void localize(String lang) {
-    	if (customConfigFile.exists())
-    		customConfigFile.delete();
+    public static void localize() {
     	plugin.saveResource("locale.yml", true);
-    	customConfig = YamlConfiguration.loadConfiguration(customConfigFile);
-    	plugin.getServer().broadcastMessage(customConfig.getString("test"));
+    	locale = YamlConfiguration.loadConfiguration(localeFile);
+    	try {
+			locale.load(localeFile);
+		} catch (IOException | InvalidConfigurationException e) {
+			e.printStackTrace();
+		}
+    	plugin.getServer().broadcastMessage(locale.getString("test"));
     	
+    }
+    public static String string(String s) {
+    	if(locale.getString(s) != null) {
+    		return locale.getString(s).replaceAll("&(?=[0-9a-fA-FkKmMoOlLnNrR])", "\u00a7");
+    	} else {
+    		return "";
+    	}
+    }
+    public static String string(String s, String replac) {
+    	if(locale.getString(s) != null) {
+    		return locale.getString(s).replaceAll("&(?=[0-9a-fA-FkKmMoOlLnNrR])", "\u00a7").replaceAll("%NAME%", replac);
+    	} else {
+    		return "";
+    	}
+    }
+    public static boolean permCheck(CommandSender sender, String perm) {
+    	return sender.hasPermission(perm);
     }
 }

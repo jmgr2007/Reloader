@@ -1,6 +1,6 @@
 name: Reloader
 description: Reload or disable plugins at will
-version: 3.4.1
+version: 3.5.0
 
 author: jmgr2007
 
@@ -12,8 +12,50 @@ commands:
     usage: '/reloader for help'
 
 permissions:
+  reloader.*:
+    description: Parent permission, can do everything.
+    default: op
+    children:
+      reloader.reload: true
+      reloader.load: true
+      reloader.unload: true
+      reloader.enable: true
+      reloader.disable: true
+      reloader.check: true
+      reloader.info: true
+      reloader.use: true
+      reloader.perm: true
+      reloader.config: true
+      reloader.list: true
   reloader.reload:
     description: Permission to reload plugins
+    default: op
+  reloader.load:
+    description: Permission to load plugins
+    default: op
+  reloader.unload: 
+    description: Permission to unload plugins
+    default: op
+  reloader.enable:
+    description: Permission to enable plugins
+    default: op
+  reloader.disable:
+    description: Permission to disable plugins
+    default: op
+  reloader.check:
+    description: Permission to check the state of plugins
+    default: op
+  reloader.info:
+    description: Permission to get information on plugins
+    default: op
+  reloader.use:
+    description: Permission to see the usage of plugins
+    default: op
+  reloader.perm:
+    description: Permission to check the permissions of users
+    default: op
+  reloader.config:
+    description: Permission to reload configuration files of plugins
     default: op
   reloader.list:
     description: see reloader's plugins list
